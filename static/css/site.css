@@ -12,20 +12,7 @@
   color-scheme: light;
 }
 
-/* Dark mode: follows the system unless the visitor picked a mode with the toggle */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0b0b0b;
-    --fg: #ffffff;
-    --muted: #8f8f8f;
-    --line: #262626;
-    --row-hover: #151515;
-    --track: #242424;
-    --bar: #ffffff;
-    color-scheme: dark;
-  }
-}
-
+/* Dark mode: only when the visitor picks it with the toggle */
 :root[data-theme="dark"] {
   --bg: #0b0b0b;
   --fg: #ffffff;

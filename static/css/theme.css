@@ -266,7 +266,8 @@ code {
 @media screen and (max-width: 768px) {
   .publication-title {
     font-size: 1.5rem !important;
-  }TAIL}
+  }
+}
 
 /* Sized so the five authors fit on one line at desktop width */
 .publication-authors {
@@ -406,11 +407,6 @@ code {
   vertical-align: middle;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .affiliation-logo {
-    background: #ffffff;
-  }TAIL}
-
 :root[data-theme="dark"] .affiliation-logo {
   background: #ffffff;
 }
@@ -449,4 +445,4 @@ code {
 .results-table td sup {
   font-size: 0.7em;
   margin-left: 1px;
-}TAIL
+}

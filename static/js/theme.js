@@ -1,7 +1,6 @@
-// Light/dark toggle: the button names the mode it switches to
+// Light/dark toggle (light by default): the button names the mode it switches to
 function currentTheme() {
-    return document.documentElement.dataset.theme ||
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    return document.documentElement.dataset.theme || 'light';
 }
 
 function setupThemeToggle() {

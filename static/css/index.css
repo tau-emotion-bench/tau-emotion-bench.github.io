@@ -299,7 +299,8 @@ code {
   
   .teaser .hero-body {
     padding: 1rem;
-  }TAIL}
+  }
+}
 
 @media screen and (max-width: 480px) {
   .publication-title {
@@ -318,13 +319,15 @@ code {
   .button {
     width: 100%;
     justify-content: center;
-  }TAIL}
+  }
+}
 
 /* Tablet Responsive */
 @media screen and (min-width: 769px) and (max-width: 1024px) {
   .hero-body {
     padding: 3rem 2rem;
-  }TAIL}
+  }
+}
 
 /* Animation for page load */
 @keyframes fadeInUp {
@@ -361,7 +364,8 @@ a:focus {
     background: transparent !important;
     color: var(--text-primary) !important;
     box-shadow: none !important;
-  }TAIL}
+  }
+}
 
 /* ---- tau-Emotion-Bench additions ---- */
 .paper-figure {
@@ -536,4 +540,4 @@ a:focus {
   height: 1.15em;
   margin-right: 0.3em;
   vertical-align: -0.22em;
-}TAIL
+}
