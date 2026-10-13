@@ -1,0 +1,452 @@
+/* Minimal black-and-white skin for the project page, on the tokens from site.css.
+   Loaded after bulma.min.css and index.css, which it overrides. */
+
+:root {
+  --primary-color: var(--fg);
+  --primary-hover: var(--fg);
+  --secondary-color: var(--muted);
+  --accent-color: var(--fg);
+  --text-primary: var(--fg);
+  --text-secondary: var(--muted);
+  --text-light: var(--muted);
+  --background-primary: var(--bg);
+  --background-secondary: var(--bg);
+  --background-accent: var(--row-hover);
+  --border-color: var(--line);
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --gradient-accent: var(--fg);
+  --border-radius: 4px;
+  --border-radius-lg: 4px;
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+html {
+  background-color: var(--bg);
+}
+
+body,
+.teaser,
+.publication-title,
+.publication-authors,
+.title,
+.title.is-3,
+.subtitle,
+.button,
+code,
+pre {
+  font-family: var(--mono) !important;
+}
+
+body {
+  font-size: 15px;
+}
+
+.hero,
+.section {
+  animation: none;
+  background: var(--bg);
+}
+
+.title,
+.subtitle,
+.content,
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+strong,
+b {
+  color: var(--fg);
+}
+
+.title {
+  letter-spacing: -0.02em;
+}
+
+.publication-title {
+  font-weight: 700 !important;
+  font-size: 2.25rem !important;
+  line-height: 1.25 !important;
+}
+
+.title.is-3 {
+  font-size: 1.5rem;
+}
+
+.title.is-3::after {
+  height: 1px;
+  border-radius: 0;
+}
+
+.title.is-4 {
+  font-size: 1.15rem;
+}
+
+.subtitle,
+.section-lead,
+.abstract-text {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.abstract-text {
+  text-align: left;
+}
+
+.subtitle b,
+.abstract-text b {
+  color: var(--fg);
+}
+
+a {
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--muted);
+}
+
+.lb-nav a,
+.button {
+  text-decoration: none;
+}
+
+/* Buttons */
+.button.is-dark {
+  background: var(--fg) !important;
+  color: var(--bg) !important;
+  font-weight: 500 !important;
+  font-size: 0.85rem;
+}
+
+.button.is-dark:hover {
+  transform: none;
+  background: var(--fg) !important;
+  opacity: 0.8;
+}
+
+.button.is-static-soon {
+  background: transparent !important;
+  color: var(--muted) !important;
+  border: 1px solid var(--line) !important;
+  opacity: 1;
+}
+
+.copy-bibtex-btn,
+.scroll-to-top {
+  background: var(--fg);
+  color: var(--bg);
+  box-shadow: none;
+}
+
+.copy-bibtex-btn:hover,
+.scroll-to-top:hover {
+  background: var(--fg);
+  opacity: 0.8;
+  transform: none;
+}
+
+.copy-bibtex-btn.copied {
+  background: var(--fg);
+}
+
+/* Cards, tiles, tables */
+.stat-tile,
+.pipeline-step,
+.finding-card,
+.table-wrap {
+  background: var(--bg);
+  border-color: var(--line);
+  border-radius: 4px;
+}
+
+.stat-tile .stat-value {
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 1.75rem;
+}
+
+.results-table {
+  background: transparent;
+  color: var(--fg);
+}
+
+.results-table thead th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom-width: 1px;
+}
+
+.results-table th,
+.results-table td {
+  border-color: var(--line);
+}
+
+.results-table tr.group-row td {
+  background: var(--row-hover);
+  color: var(--muted);
+}
+
+.results-table tr.ours td {
+  background: var(--row-hover);
+}
+
+.results-table tbody tr:hover td {
+  background: var(--row-hover);
+}
+
+.results-table td.avg,
+.results-table th.avg,
+.ood-table td.pair,
+.ood-table thead tr:last-child th:nth-child(odd) {
+  border-left-color: var(--line);
+}
+
+.section-lead code {
+  background: var(--row-hover) !important;
+}
+
+/* Figures keep a white card so the paper plots stay readable in dark mode */
+.paper-figure img {
+  background: #ffffff;
+  border-color: var(--line);
+  border-radius: 4px;
+}
+
+.paper-figure figcaption,
+.table-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.emotion-chip {
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+pre {
+  background: var(--row-hover) !important;
+  color: var(--fg) !important;
+}
+
+code {
+  background: transparent !important;
+}
+
+.footer {
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+  padding: 2rem 1.5rem;
+}
+
+.footer .content,
+.footer a {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.eql-cntrb {
+  font-style: normal;
+}
+
+.stat-grid {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+@media screen and (max-width: 768px) {
+  .publication-title {
+    font-size: 1.5rem !important;
+  }TAIL}
+
+/* Sized so the five authors fit on one line at desktop width */
+.publication-authors {
+  font-size: 1rem !important;
+}
+
+.author-block {
+  margin-right: 0.25rem;
+}
+
+/* ---- Condensed layout ---- */
+.tldr,
+.stage-list {
+  margin: 0 0 1.5rem 1.25rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.75;
+}
+
+.tldr li,
+.stage-list li {
+  margin-bottom: 0.4rem;
+}
+
+.tldr {
+  list-style: square;
+}
+
+.stage-list {
+  list-style: decimal;
+}
+
+.abstract-details {
+  margin-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+}
+
+.abstract-details summary {
+  cursor: pointer;
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.abstract-details .abstract-text {
+  margin-top: 1rem;
+}
+
+.teaser .paper-figure figcaption {
+  text-align: center;
+}
+
+.finding-block .paper-figure {
+  margin-bottom: 0;
+}
+
+.footer {
+  padding: 1.5rem 1rem;
+}
+
+.footer-credit {
+  max-width: 960px;
+  margin: 0 auto;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.footer-credit a {
+  color: var(--muted);
+}
+
+/* ---- Results tables: black borders (white in dark mode) ---- */
+.table-wrap {
+  border: 1px solid var(--fg);
+}
+
+.results-table th,
+.results-table td,
+.results-table thead th {
+  border-bottom: 1px solid var(--fg);
+}
+
+.results-table td.avg,
+.results-table th.avg,
+.ood-table td.pair,
+.ood-table thead tr:last-child th:nth-child(odd) {
+  border-left: 1px solid var(--fg);
+}
+
+.results-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.ood-table thead th[colspan],
+.ood-table thead tr:last-child th {
+  text-align: center;
+}
+
+/* Only best-per-column values are bold; Tracer rows are marked by shading and a bold name */
+.results-table td.avg,
+.results-table tr.ours td {
+  font-weight: 400;
+}
+
+.results-table tr.ours td:first-child,
+.results-table td b {
+  font-weight: 700;
+}
+
+/* Tighter spacing between the header and the headline chart */
+.publication-links {
+  margin-bottom: 0;
+}
+
+.hero:first-child .hero-body {
+  padding-bottom: 1rem;
+}
+
+.teaser .hero-body {
+  padding-top: 0.5rem;
+  padding-bottom: 1rem;
+}
+
+.section {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+
+/* ASU logo in the affiliation line; white backing in dark mode so the maroon stays legible */
+.affiliation-logo {
+  display: inline-block;
+  height: 46px;
+  width: auto;
+  padding: 4px 8px;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .affiliation-logo {
+    background: #ffffff;
+  }TAIL}
+
+:root[data-theme="dark"] .affiliation-logo {
+  background: #ffffff;
+}
+
+/* Centre numbers and their headers in every table; names stay left-aligned.
+   Prefixed with .table-wrap to outrank Bulma's "table td:not([align])" rule. */
+.table-wrap .results-table th,
+.table-wrap .results-table td {
+  text-align: center;
+}
+
+.table-wrap .results-table th:first-child,
+.table-wrap .results-table td:first-child {
+  text-align: left;
+}
+
+.table-wrap .results-table tr.group-row td {
+  text-align: center;
+}
+
+/* The second header row of the Tracer table starts with a metric, not a name */
+.table-wrap .results-table thead tr + tr th:first-child {
+  text-align: center;
+}
+
+/* Tracer-High scores on domains it was trained on: shown, but de-emphasised */
+.results-table td.seen {
+  color: var(--muted);
+}
+
+.results-table td.seen sup {
+  font-size: 0.7em;
+  margin-left: 1px;
+}
+
+.results-table td sup {
+  font-size: 0.7em;
+  margin-left: 1px;
+}TAIL

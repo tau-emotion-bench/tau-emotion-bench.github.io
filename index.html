@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions">
+  <meta name="description" content="τ-Emotion-Bench evaluates tool-calling LLM agents under emotion-conditioned user interactions across ten domains, built with the scalable Tracer pipeline.">
+  <meta name="keywords" content="τ-Emotion-Bench, tau-bench, LLM agents, tool calling, user simulation, emotion, benchmark, agent reliability, Tracer">
+  <meta name="author" content="Rishitosh Kumar Singh, Amir Saeidi, Shamanthak Hegde, Shrinidhi Kumbhar, Chitta Baral">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="τ-Emotion-Bench">
+  <meta property="og:title" content="τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions">
+  <meta property="og:description" content="A benchmark for tool-calling agents under emotion-conditioned user interactions across ten domains, built with the scalable Tracer pipeline.">
+  <meta property="og:url" content="https://tau-emotion-bench.github.io/">
+  <meta property="og:image" content="https://tau-emotion-bench.github.io/static/images/social_preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Avg@3 of LLM agents on τ-Emotion-Bench">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions">
+  <meta name="twitter:description" content="A benchmark for tool-calling agents under emotion-conditioned user interactions across ten domains, built with the scalable Tracer pipeline.">
+  <meta name="twitter:image" content="https://tau-emotion-bench.github.io/static/images/social_preview.png">
+  <meta name="twitter:image:alt" content="Avg@3 of LLM agents on τ-Emotion-Bench">
+
+  <!-- Academic/Research Specific -->
+  <!-- TODO: add citation_publication_date and citation_pdf_url once the paper is on arXiv -->
+  <meta name="citation_title" content="τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions">
+  <meta name="citation_author" content="Singh, Rishitosh Kumar">
+  <meta name="citation_author" content="Saeidi, Amir">
+  <meta name="citation_author" content="Hegde, Shamanthak">
+  <meta name="citation_author" content="Kumbhar, Shrinidhi">
+  <meta name="citation_author" content="Baral, Chitta">
+
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-TileColor" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <title>τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents</title>
+
+  <!-- Favicon and App Icons -->
+  <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+  <link rel="icon" type="image/png" href="static/images/logo.png">
+  <link rel="apple-touch-icon" href="static/images/apple-touch-icon.png">
+
+  <!-- Critical CSS - Load synchronously -->
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <script>
+    // Apply a saved light/dark choice before first paint
+    try {
+      var savedTheme = localStorage.getItem('lb-theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="stylesheet" href="static/css/site.css">
+  <link rel="stylesheet" href="static/css/theme.css">
+
+  <!-- Fonts - Optimized loading -->
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Defer non-critical JavaScript -->
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script defer src="static/js/theme.js"></script>
+  <script defer src="static/js/index.js"></script>
+
+  <!-- Structured Data for Academic Papers -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions",
+    "description": "A benchmark for evaluating tool-calling agents under emotion-conditioned user interactions across ten domains, built with the scalable Tracer data-generation pipeline.",
+    "author": [
+      { "@type": "Person", "name": "Rishitosh Kumar Singh", "affiliation": { "@type": "Organization", "name": "Arizona State University" } },
+      { "@type": "Person", "name": "Amir Saeidi", "affiliation": { "@type": "Organization", "name": "Arizona State University" } },
+      { "@type": "Person", "name": "Shamanthak Hegde", "affiliation": { "@type": "Organization", "name": "Arizona State University" } },
+      { "@type": "Person", "name": "Shrinidhi Kumbhar", "affiliation": { "@type": "Organization", "name": "Arizona State University" } },
+      { "@type": "Person", "name": "Chitta Baral", "affiliation": { "@type": "Organization", "name": "Arizona State University" } }
+    ],
+    "url": "https://tau-emotion-bench.github.io/",
+    "image": "https://tau-emotion-bench.github.io/static/images/social_preview.png",
+    "keywords": ["LLM agents", "tool calling", "user simulation", "emotion", "benchmark", "agent reliability"],
+    "isAccessibleForFree": true,
+    "about": [
+      { "@type": "Thing", "name": "LLM agents" },
+      { "@type": "Thing", "name": "Tool-calling benchmarks" }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" onclick="scrollToTop()" title="Scroll to top" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <header class="lb-nav">
+    <a class="lb-brand" href="index.html"><img src="static/images/logo.png" alt="" width="24" height="24">τ-emotion-bench</a>
+    <nav>
+      <a href="index.html" aria-current="page">home</a>
+      <button type="button" class="lb-theme" id="theme-toggle" aria-label="Switch between light and dark mode">dark</button>
+    </nav>
+  </header>
+
+  <main id="main-content">
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title"><img class="publication-logo" src="static/images/logo.png" alt="τ-Emotion-Bench logo" width="96" height="96">τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions</h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><a href="https://rishitoshsingh.is-a.dev" target="_blank" rel="noopener">Rishitosh Kumar Singh</a><sup>*</sup>,</span>
+              <span class="author-block"><a href="https://sahsaeedi.github.io/" target="_blank" rel="noopener">Amir Saeidi</a><sup>*†</sup>,</span>
+              <span class="author-block"><a href="https://shamanthak-hegde.github.io/" target="_blank" rel="noopener">Shamanthak Hegde</a><sup>*</sup>,</span>
+              <span class="author-block"><a href="https://scholar.google.com/citations?user=SB8HKjwAAAAJ&amp;hl=en" target="_blank" rel="noopener">Shrinidhi Kumbhar</a>,</span>
+              <span class="author-block"><a href="https://chitta.orissalinks.com/www/" target="_blank" rel="noopener">Chitta Baral</a></span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><img class="affiliation-logo" src="static/images/asu-logo.png" alt="Arizona State University" width="256" height="46"></span>
+              <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution &nbsp; <sup>†</sup>Corresponding Author</small></span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- TODO: add the arXiv link once the paper is posted, and drop the is-static-soon class -->
+                <span class="link-block">
+                  <a class="external-link button is-normal is-rounded is-dark is-static-soon" aria-disabled="true" tabindex="-1">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper (Coming Soon)</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="leaderboard.html"
+                  class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-trophy"></i>
+                    </span>
+                    <span>Leaderboard</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="https://huggingface.co/tau-emotion-bench/models" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-cube"></i>
+                    </span>
+                    <span>Model</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="https://huggingface.co/tau-emotion-bench/datasets" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-database"></i>
+                    </span>
+                    <span>Dataset</span>
+                  </a>
+                </span>
+
+                <span class="link-block">
+                  <a href="https://github.com/sahsaeedi/tau-emotion-bench" target="_blank"
+                  class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+<!-- Teaser: headline result -->
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <figure class="paper-figure">
+        <img src="static/images/overall_scores.png" alt="Bar chart of Avg@3 per model on τ-Emotion-Bench with two user simulators: under Qwen3-235B-A22B-Instruct-2507 the best is DeepSeek-V4.1-Flash at 55.9, under GLM-5.2 the best is GLM-5.3 at 78.6. Tracer models are hatched"/>
+        <figcaption class="has-text-centered">Avg@3 of LLM agents on τ-Emotion-Bench over three runs. Dark bars: Qwen3-235B-A22B-Instruct-2507 as the user; light bars: GLM-5.2 as the user. Hatched bars are our Tracer models.</figcaption>
+      </figure>
+      <h2 class="subtitle has-text-centered">
+        With emotional users, the best frontier agent reaches only <b>55.9%</b> Avg@3 (<b>78.6%</b> with GLM-5.2 as the user), and no model passes more than <b>32.2%</b> of tasks in all three trials (<b>66.5%</b> with GLM-5.2).
+      </h2>
+    </div>
+  </div>
+</section>
+<!-- End teaser -->
+
+<!-- TL;DR -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">TL;DR</h2>
+    <ul class="tldr">
+      <li><b>τ-Emotion-Bench</b>: 580 executable tool-calling tasks in 10 domains, where the simulated user carries one of 594 emotion conditions and can walk away if the agent handles the conversation badly.</li>
+      <li><b>Tracer</b>: an automated pipeline that builds policy-valid, verified tasks and reuses the same harness to collect interaction-efficient training trajectories.</li>
+      <li><b>Findings</b>: frontier agents are fragile under emotional users, and fine-tuning Qwen3 on 1,958 Tracer trajectories adds 13.8–19.7 points of Avg@3 (17.1–25.2 with a GLM-5.2 user) and transfers to unseen domains, τ-Bench and τ-Trait.</li>
+    </ul>
+    <div class="stat-grid">
+      <div class="stat-tile"><span class="stat-value">580</span><span class="stat-label">Tasks</span></div>
+      <div class="stat-tile"><span class="stat-value">10</span><span class="stat-label">Domains</span></div>
+      <div class="stat-tile"><span class="stat-value">173</span><span class="stat-label">Tools</span></div>
+      <div class="stat-tile"><span class="stat-value">22</span><span class="stat-label">Emotions</span></div>
+      <div class="stat-tile"><span class="stat-value">594</span><span class="stat-label">Emotion Conditions</span></div>
+      <div class="stat-tile"><span class="stat-value">1,958</span><span class="stat-label">Training Trajectories</span></div>
+    </div>
+    <details class="abstract-details">
+      <summary>Abstract</summary>
+      <p class="abstract-text">
+        In long-horizon tool-calling tasks, LLM agents can fail not only because of tool-use errors, but also because of ineffective interaction with users. Yet existing benchmarks largely assume cooperative and behaviorally stable users, leaving the effect of emotional variation on agent reliability underexplored. We introduce <b>τ-Emotion-Bench</b>, a benchmark for evaluating tool-calling agents under emotion-conditioned user interactions across ten domains. To construct the benchmark at scale, we introduce <b>Tracer</b>, a scalable agentic data-generation pipeline that constructs policy-valid tool workflows, grounds them into executable tasks, incorporates user preferences and task-specific emotional context, and verifies task validity against the environment. The resulting tasks are mapped to a structured emotion space and paired with emotion-conditioned user simulators, enabling controlled evaluation while preserving the underlying task semantics. Experiments show that frontier models remain unreliable under these interactions, with substantial variation in task success and consistency across user conditions. Beyond evaluation, we use Tracer-generated data to fine-tune models across scales, resulting in consistent improvements on τ-Emotion-Bench and strong generalization to unseen domains, external benchmarks, and different user simulators. Overall, τ-Emotion-Bench and Tracer provide a scalable framework for evaluating agent reliability under diverse user behaviors and improving tool-calling agents through transferable supervision.
+      </p>
+    </details>
+  </div>
+</section>
+<!-- End TL;DR -->
+
+<!-- Benchmark -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">The Benchmark</h2>
+    <figure class="paper-figure">
+      <img src="static/images/tracer_pipeline.png" alt="Overview of τ-Emotion-Bench and the Tracer pipeline: dependency graph construction, trace sampling, reverse refinement, emotion generation and task-conditioned mixing, verification and filtering" loading="lazy"/>
+    </figure>
+    <ol class="stage-list">
+      <li><b>Dependency graphs</b> of valid tool transitions per domain, manually verified.</li>
+      <li><b>Trace sampling</b> of executable multi-step workflows, including multi-intent tasks.</li>
+      <li><b>Reverse refinement</b> into a natural user instruction with goals and preferences.</li>
+      <li><b>Emotion mixing</b>: a task-specific feeling mapped to one of 594 emotion conditions.</li>
+      <li><b>Verification</b> for executability and policy consistency, plus manual review of all 580 tasks.</li>
+    </ol>
+    <p class="section-lead">
+      Emotions follow the Atlas of Emotions, crossed with politeness, urgency and trust:
+      <span class="emotion-chip" style="background:#d9534f;">Anger</span>
+      <span class="emotion-chip" style="background:#a877b0;">Disgust</span>
+      <span class="emotion-chip" style="background:#2f9e6e;">Enjoyment</span>
+      <span class="emotion-chip" style="background:#d98e04;">Fear</span>
+      <span class="emotion-chip" style="background:#2f6fb0;">Sadness</span>
+      The task stays fixed; if the user ends the episode with <code>###UNSATISFIED###</code>, the agent fails.
+    </p>
+    <div class="table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr><th>Domain</th><th>Read Tools</th><th>Write Tools</th><th>Emotions (Family / Sub)</th><th>Tasks</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Airline</td><td>8</td><td>6</td><td>5 / 16</td><td>70</td></tr>
+          <tr><td>Retail</td><td>9</td><td>7</td><td>5 / 17</td><td>70</td></tr>
+          <tr><td>Telecom</td><td>12</td><td>6</td><td>5 / 13</td><td>70</td></tr>
+          <tr><td>Telehealth</td><td>18</td><td>5</td><td>3 / 8</td><td>70</td></tr>
+          <tr><td>School</td><td>9</td><td>4</td><td>4 / 10</td><td>50</td></tr>
+          <tr><td>Basketball</td><td>17</td><td>3</td><td>1 / 2</td><td>50</td></tr>
+          <tr><td>Restaurant</td><td>9</td><td>6</td><td>2 / 6</td><td>50</td></tr>
+          <tr><td>Travel</td><td>9</td><td>7</td><td>2 / 6</td><td>50</td></tr>
+          <tr><td>Movie</td><td>13</td><td>3</td><td>3 / 7</td><td>50</td></tr>
+          <tr><td>Bank</td><td>13</td><td>9</td><td>3 / 8</td><td>50</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<!-- End benchmark -->
+
+<!-- Results -->
+<section class="section" id="results">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Results</h2>
+    <p class="section-lead">
+      Consistency is the hard part: the best average Pass^3 is 32.2%, and every model swings widely across domains. Bold marks the best score in each column. Further results with GLM-5.2 as the user agent are on the <a href="leaderboard.html">leaderboard</a>.
+    </p>
+    <div class="table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Airline</th><th>Retail</th><th>Telecom</th><th>Telehealth</th><th>School</th>
+            <th>Basketball</th><th>Restaurant</th><th>Travel</th><th>Movie</th><th>Bank</th>
+            <th class="avg">Avg.</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="group-row"><td colspan="12">Non-thinking Models</td></tr>
+          <tr><td>Qwen3-32B</td><td>10.0</td><td>21.4</td><td>12.9</td><td>10.0</td><td>20.0</td><td>4.0</td><td>6.0</td><td>0.0</td><td>0.0</td><td>10.0</td><td class="avg">9.4</td></tr>
+          <tr><td>Qwen3-235B-A22B</td><td>17.1</td><td>15.7</td><td>10.0</td><td>21.4</td><td>22.0</td><td>24.0</td><td>4.0</td><td>0.0</td><td>0.0</td><td>24.0</td><td class="avg">13.8</td></tr>
+          <tr><td>DeepSeek-V4.1-Flash</td><td>32.9</td><td>44.3</td><td><b>17.1</b></td><td><b>31.4</b></td><td>42.0</td><td>38.0</td><td>26.0</td><td><b>30.0</b></td><td>22.0</td><td>38.0</td><td class="avg"><b>32.2</b></td></tr>
+          <tr class="group-row"><td colspan="12">Thinking Models</td></tr>
+          <tr><td>Qwen3-32B</td><td>8.6</td><td>21.4</td><td>8.6</td><td>15.7</td><td>14.0</td><td>12.0</td><td>2.0</td><td>2.0</td><td>2.0</td><td>0.0</td><td class="avg">8.6</td></tr>
+          <tr><td>Qwen3-1.7B</td><td>0.0</td><td>0.0</td><td>8.6</td><td>2.9</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td class="avg">1.2</td></tr>
+          <tr><td>Qwen3-4B</td><td>2.9</td><td>1.4</td><td>8.6</td><td>14.3</td><td>0.0</td><td>8.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>4.0</td><td class="avg">3.9</td></tr>
+          <tr><td>Qwen3-8B</td><td>4.3</td><td>14.3</td><td>12.9</td><td>22.9</td><td>0.0</td><td>12.0</td><td>4.0</td><td>2.0</td><td>0.0</td><td>12.0</td><td class="avg">8.4</td></tr>
+          <tr><td>Qwen3-235B-A22B-T</td><td>22.9</td><td>31.4</td><td>7.1</td><td>20.0</td><td>20.0</td><td>26.0</td><td>8.0</td><td>4.0</td><td>0.0</td><td>26.0</td><td class="avg">16.5</td></tr>
+          <tr><td>Qwen3.8-27B</td><td>32.9</td><td>38.6</td><td>11.4</td><td>30.0</td><td>48.0</td><td>28.0</td><td><b>30.0</b></td><td>16.0</td><td>10.0</td><td>28.0</td><td class="avg">27.3</td></tr>
+          <tr><td>MiniMax-M3</td><td>7.1</td><td>42.9</td><td>11.4</td><td>14.3</td><td>16.0</td><td>34.0</td><td>12.0</td><td>12.0</td><td>4.0</td><td>22.0</td><td class="avg">17.6</td></tr>
+          <tr><td>Muse-Glimmer-30B</td><td>20.0</td><td>0.0</td><td>8.6</td><td>14.3</td><td><b>64.0</b></td><td>28.0</td><td>10.0</td><td>18.0</td><td>12.0</td><td>30.0</td><td class="avg">20.5</td></tr>
+          <tr><td>MiniMax-M2.7</td><td>18.6</td><td>27.1</td><td>7.1</td><td>12.9</td><td>46.0</td><td>22.0</td><td>4.0</td><td>0.0</td><td>2.0</td><td>28.0</td><td class="avg">16.8</td></tr>
+          <tr><td>Gemma-4-31B-it</td><td>30.0</td><td>37.1</td><td>12.9</td><td>22.9</td><td>56.0</td><td>26.0</td><td>18.0</td><td>6.0</td><td>12.0</td><td>26.0</td><td class="avg">24.7</td></tr>
+          <tr><td>GLM-5.3</td><td><b>38.6</b></td><td><b>45.7</b></td><td>2.9</td><td>20.0</td><td>48.0</td><td><b>62.0</b></td><td>28.0</td><td>14.0</td><td><b>30.0</b></td><td>28.0</td><td class="avg">31.7</td></tr>
+          <tr><td>Kimi-K2.7-Code</td><td>30.0</td><td>44.3</td><td>10.0</td><td>14.3</td><td>44.0</td><td>34.0</td><td>12.0</td><td>12.0</td><td>8.0</td><td><b>52.0</b></td><td class="avg">26.1</td></tr>
+          <tr class="ours"><td>Tracer-High-1.7B (Ours)</td><td>17.1</td><td>17.1</td><td>11.4</td><td>14.3</td><td>8.0</td><td>12.0</td><td>0.0</td><td>0.0</td><td>0.0</td><td>24.0</td><td class="avg">10.4</td></tr>
+          <tr class="ours"><td>Tracer-High-4B (Ours)</td><td>22.9</td><td>30.0</td><td>8.6</td><td>22.9</td><td>34.0</td><td>20.0</td><td>6.0</td><td>0.0</td><td>2.0</td><td>26.0</td><td class="avg">17.2</td></tr>
+          <tr class="ours"><td>Tracer-High-8B (Ours)</td><td>27.1</td><td>31.4</td><td>15.7</td><td><b>31.4</b></td><td>38.0</td><td>16.0</td><td>12.0</td><td>2.0</td><td>2.0</td><td>22.0</td><td class="avg">19.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">Pass^3 (%) on the ten τ-Emotion-Bench domains, with Qwen3-235B-A22B-Instruct as the user simulator. Shaded rows are our Tracer models.</p>
+  </div>
+</section>
+<!-- End results -->
+
+<!-- Tracer -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Training With Tracer</h2>
+    <p class="section-lead">
+      Tracer keeps only successful trajectories in which the user did not walk away, which favors agents that use tools instead of leaning on the user. Tracer-High is trained on all ten domains (1,958 trajectories); Tracer-Low on four domains only (1,498).
+    </p>
+    <ul class="tldr">
+      <li><b>Narrows the gap</b>: Tracer-High-8B reaches 38.1% Avg@3, above MiniMax-M3 (37.0%) and Qwen3-235B-A22B-Thinking (36.0%). With a GLM-5.2 user it reaches 54.7%, above Qwen3-235B-A22B-Instruct (51.7%).</li>
+      <li><b>Generalizes</b>: Tracer-Low has the best out-of-domain Pass^3 at every scale, against methods trained on up to 91K trajectories.</li>
+      <li><b>Transfers</b>: gains carry over to τ-Bench and τ-Trait, which use different tasks and user simulators.</li>
+    </ul>
+    <div class="table-wrap">
+      <table class="results-table ood-table">
+        <thead>
+          <tr>
+            <th rowspan="2">Method</th>
+            <th colspan="2">In-Domain</th>
+            <th colspan="2" class="avg">Out-of-Domain</th>
+          </tr>
+          <tr><th>Pass^1</th><th>Pass^3</th><th class="avg">Pass^1</th><th>Pass^3</th></tr>
+        </thead>
+        <tbody>
+          <tr class="group-row"><td colspan="5">Qwen3-1.7B</td></tr>
+          <tr><td>Base</td><td>8.4</td><td>2.9</td><td class="avg">3.3</td><td>0.0</td></tr>
+          <tr><td>AReaL</td><td>11.4</td><td>1.9</td><td class="avg">1.9</td><td>0.3</td></tr>
+          <tr><td>EnvScaler</td><td>18.2</td><td>5.2</td><td class="avg">6.5</td><td>0.7</td></tr>
+          <tr class="ours"><td>Tracer-Low (Ours)</td><td>34.3</td><td>12.9</td><td class="avg"><b>8.4</b></td><td><b>2.7</b></td></tr>
+          <tr class="ours"><td>Tracer-High (Ours)</td><td><b>36.2</b></td><td><b>15.2</b></td><td class="avg seen">17.7<sup>†</sup></td><td class="seen">7.3<sup>†</sup></td></tr>
+          <tr class="group-row"><td colspan="5">Qwen3-4B</td></tr>
+          <tr><td>Base</td><td>24.3</td><td>4.3</td><td class="avg">11.7</td><td>2.0</td></tr>
+          <tr><td>AReaL</td><td>23.6</td><td>6.2</td><td class="avg">7.6</td><td>1.7</td></tr>
+          <tr><td>EnvScaler</td><td>37.6</td><td>17.6</td><td class="avg">16.9</td><td>3.3</td></tr>
+          <tr><td>Arctic-AWM</td><td>26.3</td><td>7.1</td><td class="avg">10.9</td><td>1.7</td></tr>
+          <tr><td>SPADE</td><td>7.6</td><td>1.9</td><td class="avg">1.0</td><td>0.0</td></tr>
+          <tr class="ours"><td>Tracer-Low (Ours)</td><td><b>45.7</b></td><td><b>20.5</b></td><td class="avg"><b>18.6</b></td><td><b>7.7</b></td></tr>
+          <tr class="ours"><td>Tracer-High (Ours)</td><td><b>45.7</b></td><td><b>20.5</b></td><td class="avg seen">31.3<sup>†</sup></td><td class="seen">14.7<sup>†</sup></td></tr>
+          <tr class="group-row"><td colspan="5">Qwen3-8B</td></tr>
+          <tr><td>Base</td><td>32.8</td><td>10.5</td><td class="avg">16.5</td><td>5.0</td></tr>
+          <tr><td>AReaL</td><td>24.3</td><td>8.1</td><td class="avg">7.5</td><td>1.0</td></tr>
+          <tr><td>EnvScaler</td><td>37.8</td><td>16.7</td><td class="avg"><b>20.8</b></td><td>7.0</td></tr>
+          <tr><td>Arctic-AWM</td><td>30.5</td><td>9.5</td><td class="avg">14.2</td><td>2.3</td></tr>
+          <tr><td>Simia-Tau-SFT</td><td>33.5</td><td>11.4</td><td class="avg">14.5</td><td>4.3</td></tr>
+          <tr><td>Simia-Tau-SFT-RL</td><td>34.8</td><td>12.9</td><td class="avg">14.0</td><td>2.7</td></tr>
+          <tr><td>SPADE</td><td>7.3</td><td>1.9</td><td class="avg">0.8</td><td>0.0</td></tr>
+          <tr class="ours"><td>Tracer-Low (Ours)</td><td><b>47.8</b></td><td>24.3</td><td class="avg">20.7</td><td><b>8.3</b></td></tr>
+          <tr class="ours"><td>Tracer-High (Ours)</td><td>46.4</td><td><b>24.7</b></td><td class="avg seen">31.4<sup>†</sup></td><td class="seen">15.3<sup>†</sup></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-note">Average Pass^1 and Pass^3 (%). In-domain: Airline, Retail, Telecom. Out-of-domain: the six domains Tracer-Low never saw. † Tracer-High is trained on all ten domains, so these six domains are not unseen for it; its scores are averaged from the paper's per-domain appendix table and are excluded from the bold best-score marking.</p>
+    <figure class="paper-figure" style="margin-top: 2rem;">
+      <img src="static/images/tau_bench.png" alt="Grouped bars of pass^1, pass^2 and pass^3 for Qwen3 base, Tracer-Low and Tracer-High at 1.7B, 4B and 8B on τ-Bench Airline, τ-Bench Retail, τ-Trait Telecom and τ-Trait Telehealth" loading="lazy"/>
+      <figcaption>Qwen3 base vs. Tracer-Low and Tracer-High on τ-Bench and τ-Trait (Pass^1 to Pass^3).</figcaption>
+    </figure>
+  </div>
+</section>
+<!-- End Tracer -->
+
+<!-- Findings -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Key Findings</h2>
+
+    <div class="finding-block">
+      <h3 class="title is-4">Policy Violations Persist</h3>
+      <p class="section-lead">Violations drop with capability and Tracer tuning, but reach about 67% in Telehealth and 91% in Telecom even for stronger models.</p>
+      <figure class="paper-figure">
+        <img src="static/images/policy_violation.png" alt="Dot plots of policy violation rate per emotion family in each domain, for Qwen3, Tracer-Low, Tracer-High, stronger models and weaker models" loading="lazy"/>
+      </figure>
+    </div>
+
+    <div class="finding-block">
+      <h3 class="title is-4">Balance Tool Use and Follow-Up</h3>
+      <p class="section-lead">Higher Avg@3 goes with a moderate tool-call to follow-up ratio; more aggressive tool use does not help.</p>
+      <figure class="paper-figure">
+        <img src="static/images/tool_followup.png" alt="Five scatter panels, one per emotion family, of Avg@3 against the tool-call to follow-up ratio" loading="lazy"/>
+      </figure>
+    </div>
+
+    <div class="columns">
+      <div class="column is-half finding-block">
+        <h3 class="title is-4">Empathy Adds Follow-Up</h3>
+        <p class="section-lead">Empathetic replies come with more follow-up questions and often lower success, especially under Enjoyment.</p>
+        <figure class="paper-figure">
+          <img src="static/images/empathy.png" alt="Heatmap of change in success with empathy by emotion and model group, and share of follow-up questions with and without empathy" loading="lazy"/>
+        </figure>
+      </div>
+      <div class="column is-half finding-block">
+        <h3 class="title is-4">The User Simulator Is Reliable</h3>
+        <p class="section-lead">Of 6,961 failed trajectories, only 124 user turns are confirmed user errors (1.1% of failed trials), at most 1.4% per emotion family.</p>
+        <figure class="paper-figure">
+          <img src="static/images/hallucination.png" alt="Heatmap of user hallucination rates by sub-emotion and domain, mostly empty" loading="lazy"/>
+        </figure>
+      </div>
+    </div>
+
+    <div class="finding-block" style="margin-bottom: 0;">
+      <h3 class="title is-4">Why Tracer Generalizes</h3>
+      <p class="section-lead">Tool calls outnumber follow-up actions in 76–79% of Tracer trajectories, versus 56% for AReaL and 22% for Simia.</p>
+      <figure class="paper-figure">
+        <img src="static/images/training_patterns.png" alt="Scatter plots of tool calls against follow-up actions in AReaL, Simia, Tracer-Low and Tracer-High training trajectories" loading="lazy"/>
+      </figure>
+    </div>
+  </div>
+</section>
+<!-- End findings -->
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <div class="bibtex-header">
+        <h2 class="title">BibTeX</h2>
+        <button class="copy-bibtex-btn" onclick="copyBibTeX()" title="Copy BibTeX to clipboard">
+          <i class="fas fa-copy"></i>
+          <span class="copy-text">Copy</span>
+        </button>
+      </div>
+      <!-- TODO: add the arXiv eprint once the paper is posted -->
+      <pre id="bibtex-code"><code>@article{singh2026tauemotionbench,
+  title={$\tau$-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions},
+  author={Singh, Rishitosh Kumar and Saeidi, Amir and Hegde, Shamanthak and Kumbhar, Shrinidhi and Baral, Chitta},
+  note={Under review},
+  year={2026},
+  url={https://tau-emotion-bench.github.io/}
+}</code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+  </main>
+
+
+  <footer class="footer">
+    <p class="footer-credit">
+      Website adapted from the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank" rel="noopener">Academic Project Page Template</a> and <a href="https://nerfies.github.io" target="_blank" rel="noopener">Nerfies</a>, licensed under <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>.
+    </p>
+  </footer>
+
+  </body>
+  </html>

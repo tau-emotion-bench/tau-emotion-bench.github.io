@@ -1,0 +1,100 @@
+/* Shared by index.html and leaderboard.html: colour tokens, top bar, light/dark toggle */
+
+/* Light mode (default) */
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --muted: #6b6b6b;
+  --line: #e5e5e5;
+  --row-hover: #f6f6f6;
+  --track: #ececec;
+  --bar: #000000;
+  color-scheme: light;
+}
+
+/* Dark mode: follows the system unless the visitor picked a mode with the toggle */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0b0b;
+    --fg: #ffffff;
+    --muted: #8f8f8f;
+    --line: #262626;
+    --row-hover: #151515;
+    --track: #242424;
+    --bar: #ffffff;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0b0b0b;
+  --fg: #ffffff;
+  --muted: #8f8f8f;
+  --line: #262626;
+  --row-hover: #151515;
+  --track: #242424;
+  --bar: #ffffff;
+  color-scheme: dark;
+}
+
+.lb-nav {
+  max-width: 960px;
+  margin: 0 auto;
+  padding-left: 16px;
+  padding-right: 16px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.lb-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.lb-brand {
+  color: var(--fg);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.lb-nav nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.lb-nav nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.lb-nav nav a:hover,
+.lb-nav nav a[aria-current="page"] {
+  color: var(--fg);
+}
+
+.lb-theme {
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.lb-theme:hover {
+  color: var(--fg);
+  border-color: var(--fg);
+}
