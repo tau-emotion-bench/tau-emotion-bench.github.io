@@ -31,22 +31,21 @@
   <meta name="twitter:image:alt" content="Avg@3 of LLM agents on τ-Emotion-Bench">
 
   <!-- Academic/Research Specific -->
-  <!-- TODO: add citation_publication_date and citation_pdf_url once the paper is on arXiv -->
   <meta name="citation_title" content="τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions">
   <meta name="citation_author" content="Singh, Rishitosh Kumar">
   <meta name="citation_author" content="Saeidi, Amir">
   <meta name="citation_author" content="Hegde, Shamanthak">
   <meta name="citation_author" content="Kumbhar, Shrinidhi">
   <meta name="citation_author" content="Baral, Chitta">
+  <meta name="citation_publication_date" content="2026/10/14">
+  <meta name="citation_arxiv_id" content="2610.19560">
+  <meta name="citation_pdf_url" content="https://arxiv.org/pdf/2610.19560">
 
   <meta name="theme-color" content="#000000">
   <meta name="msapplication-TileColor" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-  <!-- Preconnect for performance -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <title>τ-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents</title>
 
@@ -68,8 +67,6 @@
   <link rel="stylesheet" href="static/css/site.css">
   <link rel="stylesheet" href="static/css/theme.css">
 
-  <!-- Fonts - Optimized loading -->
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Defer non-critical JavaScript -->
   <script defer src="static/js/fontawesome.all.min.js"></script>
@@ -91,6 +88,8 @@
       { "@type": "Person", "name": "Chitta Baral", "affiliation": { "@type": "Organization", "name": "Arizona State University" } }
     ],
     "url": "https://tau-emotion-bench.github.io/",
+    "sameAs": "https://arxiv.org/abs/2610.19560",
+    "datePublished": "2026-10-14",
     "image": "https://tau-emotion-bench.github.io/static/images/social_preview.png",
     "keywords": ["LLM agents", "tool calling", "user simulation", "emotion", "benchmark", "agent reliability"],
     "isAccessibleForFree": true,
@@ -139,13 +138,13 @@
 
             <div class="column has-text-centered">
               <div class="publication-links">
-                <!-- TODO: add the arXiv link once the paper is posted, and drop the is-static-soon class -->
                 <span class="link-block">
-                  <a class="external-link button is-normal is-rounded is-dark is-static-soon" aria-disabled="true" tabindex="-1">
+                  <a href="https://arxiv.org/abs/2610.19560" target="_blank" rel="noopener"
+                  class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fas fa-file-pdf"></i>
                     </span>
-                    <span>Paper (Coming Soon)</span>
+                    <span>Paper</span>
                   </a>
                 </span>
 
@@ -245,7 +244,7 @@
   <div class="container is-max-desktop">
     <h2 class="title is-3 has-text-centered">The Benchmark</h2>
     <figure class="paper-figure">
-      <img src="static/images/tracer_pipeline.png" alt="Overview of τ-Emotion-Bench and the Tracer pipeline: dependency graph construction, trace sampling, reverse refinement, emotion generation and task-conditioned mixing, verification and filtering" loading="lazy"/>
+      <a href="static/pdfs/tau-emotion-overview.pdf" target="_blank" rel="noopener" title="Open the full-resolution figure (PDF)"><img src="static/images/tracer_pipeline.png" alt="Overview of τ-Emotion-Bench and the Tracer pipeline: dependency graph construction, trace sampling, reverse refinement, emotion generation and task-conditioned mixing, verification and filtering" loading="lazy"/></a>
     </figure>
     <ol class="stage-list">
       <li><b>Dependency graphs</b> of valid tool transitions per domain, manually verified.</li>
@@ -463,13 +462,12 @@
           <span class="copy-text">Copy</span>
         </button>
       </div>
-      <!-- TODO: add the arXiv eprint once the paper is posted -->
       <pre id="bibtex-code"><code>@article{singh2026tauemotionbench,
   title={$\tau$-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions},
   author={Singh, Rishitosh Kumar and Saeidi, Amir and Hegde, Shamanthak and Kumbhar, Shrinidhi and Baral, Chitta},
-  note={Under review},
+  journal={arXiv preprint arXiv:2610.19560},
   year={2026},
-  url={https://tau-emotion-bench.github.io/}
+  url={https://arxiv.org/abs/2610.19560}
 }</code></pre>
     </div>
 </section>
