@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="τ-Emotion-Bench leaderboard: tool-calling agents ranked by Pass^1 and Pass^3 under emotion-conditioned user interactions.">
+  <meta name="description" content="τ-Emotion-Bench leaderboard: tool-calling agents ranked by Pass^1 and Pass^3 under emotion-conditioned user interactions, with Pareto, domain matrix and radar views.">
   <meta property="og:title" content="τ-Emotion-Bench Leaderboard">
   <meta property="og:description" content="Tool-calling agents ranked by Pass^1 and Pass^3 under emotion-conditioned user interactions.">
   <meta property="og:url" content="https://tau-emotion-bench.github.io/leaderboard.html">
@@ -22,14 +22,16 @@
   <link rel="stylesheet" href="static/css/site.css">
   <link rel="stylesheet" href="static/css/leaderboard.css">
   <script defer src="static/js/theme.js"></script>
+  <script defer src="static/js/leaderboard-tasks.js"></script>
   <script defer src="static/js/leaderboard-data.js"></script>
   <script defer src="static/js/leaderboard.js"></script>
 </head>
-<body>
+<body class="lb-wide">
   <header class="lb-nav">
     <a class="lb-brand" href="index.html"><img src="static/images/logo.png" alt="" width="24" height="24">τ-emotion-bench</a>
     <nav>
       <a href="index.html">home</a>
+      <a href="https://github.com/sahsaeedi/tau-emotion-bench">github</a>
       <a href="https://github.com/sahsaeedi/tau-emotion-bench/blob/main/docs/leaderboard-submission.md">submit</a>
       <button type="button" class="lb-theme" id="theme-toggle" aria-label="Switch between light and dark mode">dark</button>
     </nav>
@@ -38,46 +40,147 @@
   <main class="lb-main">
     <h1>Leaderboard</h1>
     <p class="lb-lead">
-      Tool-calling (TC) agents on τ-Emotion-Bench: executable tasks across ten domains, where an emotion-conditioned user agent can end the conversation if the agent handles it badly. Each agent is evaluated with two user agents.
+      Tool-calling agents on τ-Emotion-Bench: executable tasks across ten domains, where an emotion-conditioned user agent can end the conversation if the agent handles it badly. Each agent is scored with two user agents, and each user agent has its own ranking.
     </p>
-    <p class="lb-meta" id="lb-meta"></p>
 
-    <div class="lb-controls">
-      <span class="lb-control-label">User agent</span>
-      <div class="lb-segmented" id="lb-user" role="group" aria-label="Choose the user agent"></div>
+    <div class="lb-actions">
+      <a class="lb-action" href="https://github.com/sahsaeedi/tau-emotion-bench#running-the-benchmark">Run the benchmark <span>&gt;_</span></a>
+      <a class="lb-action" href="https://github.com/sahsaeedi/tau-emotion-bench/tree/main/data/tau_emotion/domains">View the tasks <span>↗</span></a>
+      <a class="lb-action" href="https://github.com/sahsaeedi/tau-emotion-bench/blob/main/docs/leaderboard-submission.md">Submit your model <span>+</span></a>
+      <a class="lb-action" href="index.html#BibTeX">Cite the benchmark <span>”</span></a>
     </div>
 
-    <div class="lb-legend" aria-hidden="true">
-      <span><i class="lb-key lb-key-p3"></i>Pass^3</span>
-      <span><i class="lb-key lb-key-p1"></i>Pass^1</span>
+    <!-- Domain chips: scope every view to one domain, or all of them -->
+    <nav class="lb-domains" id="lb-domains" aria-label="Domain"></nav>
+
+    <!-- Toolbar: share on the left; user agent, filter and view on the right -->
+    <div class="lb-toolbar">
+      <div class="lb-tools">
+        <button type="button" class="lb-icon-btn" id="lb-copy" title="Copy a link to this view" aria-label="Copy a link to this view">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6.5 9.5a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-1 1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9.5 6.5a3 3 0 0 0-4.2 0l-2 2a3 3 0 0 0 4.2 4.2l1-1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" class="lb-icon-btn" id="lb-csv" title="Download the current ranking as CSV" aria-label="Download the current ranking as CSV">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 2v8m0 0 3-3m-3 3L5 7M3 12v1.5h10V12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <span class="lb-toast" id="lb-toast" role="status" aria-live="polite"></span>
+      </div>
+      <div class="lb-tools lb-tools-right">
+        <label class="lb-select" title="User agent">
+          <span class="lb-sr">User agent</span>
+          <select id="lb-user" aria-label="Choose the user agent"></select>
+        </label>
+        <div class="lb-filter-wrap">
+          <button type="button" class="lb-icon-btn" id="lb-filter-btn" aria-expanded="false" aria-controls="lb-filter" title="Filter agents" aria-label="Filter agents">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2 3h12l-4.5 5.5V13l-3-1.5V8.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+            <span class="lb-badge" id="lb-filter-count" hidden></span>
+          </button>
+          <div class="lb-filter" id="lb-filter" hidden>
+            <div class="lb-filter-row">
+              <span class="lb-filter-label">Thinking</span>
+              <div class="lb-segmented" data-filter="thinking">
+                <button type="button" data-value="all" aria-pressed="true">all</button>
+                <button type="button" data-value="yes" aria-pressed="false">thinking</button>
+                <button type="button" data-value="no" aria-pressed="false">non-thinking</button>
+              </div>
+            </div>
+            <div class="lb-filter-row">
+              <span class="lb-filter-label">Submission</span>
+              <div class="lb-segmented" data-filter="type">
+                <button type="button" data-value="all" aria-pressed="true">all</button>
+                <button type="button" data-value="standard" aria-pressed="false">standard</button>
+                <button type="button" data-value="custom" aria-pressed="false">custom</button>
+              </div>
+            </div>
+            <div class="lb-filter-row">
+              <span class="lb-filter-label">Search</span>
+              <input type="search" id="lb-q" placeholder="model or company" aria-label="Search by model or company">
+            </div>
+            <button type="button" class="lb-link-btn" id="lb-filter-reset">reset</button>
+          </div>
+        </div>
+        <div class="lb-tabs" role="tablist" aria-label="View">
+          <button type="button" role="tab" data-view="ranking" aria-selected="true">ranking</button>
+          <button type="button" role="tab" data-view="pareto" aria-selected="false">pareto</button>
+          <button type="button" role="tab" data-view="matrix" aria-selected="false">matrix</button>
+          <button type="button" role="tab" data-view="radar" aria-selected="false">radar</button>
+        </div>
+      </div>
     </div>
 
-    <div class="lb-table-wrap">
-      <table class="lb-table" id="leaderboard">
-        <thead>
-          <tr>
-            <th class="num">Rank</th>
-            <th>TC Agent</th>
-            <th class="col-company">Company</th>
-            <th class="col-user">User Agent</th>
-            <th class="col-perf">
-              <div class="lb-axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
-            </th>
-            <th class="num"><button type="button" data-sort="pass1" aria-label="Sort by Pass^1">Pass^1</button></th>
-            <th class="num"><button type="button" data-sort="pass3" aria-label="Sort by Pass^3">Pass^3</button></th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      <noscript><p class="lb-empty">The leaderboard needs JavaScript to display.</p></noscript>
-    </div>
+    <section class="lb-panel" id="lb-panel">
+      <header class="lb-panel-head">
+        <span id="lb-panel-title">τ-EMOTION-BENCH LEADERBOARD</span>
+        <span class="lb-panel-meta" id="lb-meta"></span>
+      </header>
+
+      <div class="lb-view" id="view-ranking" data-view="ranking">
+        <div class="lb-table-wrap">
+          <table class="lb-table" id="leaderboard">
+            <thead>
+              <tr>
+                <th class="num">Rank</th>
+                <th><button type="button" data-sort="model">Model</button></th>
+                <th class="col-company"><button type="button" data-sort="provider">Company</button></th>
+                <th class="col-perf"><button type="button" data-sort="pass1">Pass^1</button></th>
+                <th class="col-bar" aria-hidden="true"><div class="lb-axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></th>
+                <th class="num"><button type="button" data-sort="pass3">Pass^3</button></th>
+                <th class="num col-gap"><button type="button" data-sort="gap" title="Pass^1 minus Pass^3: how much is lost to inconsistency">Drop</button></th>
+                <th class="num col-date"><button type="button" data-sort="date">Added</button></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <noscript><p class="lb-empty">The leaderboard needs JavaScript to display.</p></noscript>
+        </div>
+        <p class="lb-caption" id="lb-ranking-caption"></p>
+      </div>
+
+      <div class="lb-view" id="view-pareto" data-view="pareto" hidden>
+        <div class="lb-chart" id="lb-pareto"></div>
+        <div class="lb-chart-foot">
+          <label class="lb-select">
+            <span>Compare</span>
+            <select id="lb-pair" aria-label="Choose the axes of the Pareto plot">
+              <option value="consistency">Pass^3 vs. Pass^1</option>
+              <option value="users-p1">GLM-5.2 user vs. Qwen3 user (Pass^1)</option>
+              <option value="users-p3">GLM-5.2 user vs. Qwen3 user (Pass^3)</option>
+            </select>
+          </label>
+          <span class="lb-caption" id="lb-pareto-caption"></span>
+        </div>
+      </div>
+
+      <div class="lb-view" id="view-matrix" data-view="matrix" hidden>
+        <div class="lb-subbar">
+          <span class="lb-filter-label">Columns</span>
+          <div class="lb-segmented" id="lb-level">
+            <button type="button" data-value="domains" aria-pressed="true">domains</button>
+            <button type="button" data-value="tasks" aria-pressed="false">tasks</button>
+          </div>
+          <span class="lb-caption" id="lb-level-hint"></span>
+        </div>
+        <div class="lb-matrix-wrap" id="lb-matrix"></div>
+        <p class="lb-caption" id="lb-matrix-caption"></p>
+      </div>
+
+      <div class="lb-view" id="view-radar" data-view="radar" hidden>
+        <div class="lb-radar-grid">
+          <div class="lb-table-wrap" id="lb-radar-table"></div>
+          <div class="lb-radar-chart" id="lb-radar"></div>
+        </div>
+        <p class="lb-caption">Pass^3 across the ten domains. Hover or click a row to highlight an agent; the others stay in gray.</p>
+      </div>
+    </section>
+
+    <div class="lb-tip" id="lb-tip" role="tooltip" hidden></div>
 
     <ul class="lb-notes">
-      <li><b>Pass^1</b> is the average success rate over three trials. <b>Pass^3</b> is the share of tasks solved in all three trials, averaged over the ten domains. Both are in %. The bar shows both on a shared 0 to 100 scale: the solid part is Pass^3 and the light part extends to Pass^1.</li>
+      <li><b>Pass^1</b> (Avg@3) is the average success rate over three trials. <b>Pass^3</b> (Avg^3) is the share of tasks solved in all three trials, averaged over the ten domains. Both are in %. <b>Drop</b> is Pass^1 minus Pass^3: what the agent loses to inconsistency.</li>
       <li>An episode fails if the user agent ends it with <code>###UNSATISFIED###</code> before the task is complete.</li>
-      <li>Each user agent has its own ranking: scores are not comparable across user agents. Click a metric to sort by it.</li>
-      <li><b>custom</b> marks a submission that changed the agent side, such as its own agent loop, tools or prompts, or a model trained on τ-Emotion-Bench tasks.</li>
-      <li>To add your model, follow the <a href="https://github.com/sahsaeedi/tau-emotion-bench/blob/main/docs/leaderboard-submission.md">submission guide</a>.</li>
+      <li>Each user agent has its own ranking: scores are not comparable across user agents. The Pareto view can put the two user agents on its axes for agents evaluated with both.</li>
+      <li>Pick a domain above the table to score every view on that domain alone; <b>all domains</b> averages the ten domains, each counting once.</li>
+      <li><b>thinking</b> marks a model that reasons before it answers. <b>custom</b> marks a submission that changed the agent side, such as its own agent loop, tools or prompts, or a model trained on τ-Emotion-Bench tasks.</li>
+      <li>Rows marked <b>paper</b> are from the <a href="https://arxiv.org/abs/2610.19560">paper</a>; dated rows are <a href="https://github.com/sahsaeedi/tau-emotion-bench/tree/main/submissions">accepted submissions</a>, each with its trajectories. To add your model, follow the <a href="https://github.com/sahsaeedi/tau-emotion-bench/blob/main/docs/leaderboard-submission.md">submission guide</a>.</li>
     </ul>
   </main>
 
