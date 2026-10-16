@@ -5,7 +5,7 @@ const LB_SUBMISSIONS = 'https://raw.githubusercontent.com/sahsaeedi/tau-emotion-
 // Submissions name each user agent by its model; the switch uses these ids
 const LB_USER_IDS = { 'qwen3-235b-a22b-instruct-2507': 'qwen', 'glm-5.2': 'glm' };
 const LB_VIEWS = ['ranking', 'pareto', 'matrix', 'radar'];
-const LB_PAIRS = ['cost', 'tokens', 'consistency', 'users-p1', 'users-p3'];
+const LB_PAIRS = ['cost', 'tokens', 'cost-p3', 'tokens-p3'];
 const LB_TASKS_URL = 'https://github.com/sahsaeedi/tau-emotion-bench/tree/main/data/tau_emotion/domains';
 const LB_LEVELS = ['domains', 'tasks'];
 // Line icons for the domain chips (24x24, stroked)
@@ -433,46 +433,21 @@ function lbRenderRanking() {
 // ---- Pareto ----
 
 function lbParetoPoints() {
-    const pair = state.pair;
+    const cost = state.pair.indexOf('cost') === 0;
+    const p3 = state.pair.indexOf('-p3') > 0;
     const where = state.domain === 'all' ? '' : ' on ' + lbDomainLabel();
-    if (pair === 'cost' || pair === 'tokens') {
-        const cost = pair === 'cost';
-        const points = [];
-        lbFiltered().forEach(function(e) {
-            const x = cost ? lbCost(e) : (lbTokens(e) ? lbTokens(e).total : null);
-            const y = lbP1(e);
-            if (x != null && y != null) points.push({ e: e, x: x, y: y, sub: e.provider });
-        });
-        return {
-            xLabel: cost ? 'Estimated cost' + where : 'Agent tokens' + where, yLabel: 'Pass^1' + where,
-            xKind: cost ? 'cost' : 'tokens', minX: true,
-            caption: cost ?
-                'Cost is the agent\'s tokens at the model\'s list prices, an estimate; agents without a known price are left out. The frontier joins the agents no other agent beats on both Pass^1 and cost.' :
-                'Tokens are the agent\'s prompt and completion tokens over every run. The frontier joins the agents no other agent beats on both Pass^1 and tokens.',
-            points: points,
-        };
-    }
-    if (pair === 'consistency') {
-        return {
-            xLabel: 'Pass^1' + where, yLabel: 'Pass^3' + where, xKind: 'pct',
-            caption: 'Agents on the frontier are not beaten on both Pass^1 and Pass^3 by any other agent. The dashed line is Pass^3 = Pass^1: perfect consistency across trials.',
-            diagonal: true,
-            points: lbFiltered().filter(function(e) { return lbP1(e) != null && lbP3(e) != null; })
-                .map(function(e) { return { e: e, x: lbP1(e), y: lbP3(e), sub: e.provider }; }),
-        };
-    }
-    const metric = pair === 'users-p1' ? lbP1 : lbP3;
-    const label = pair === 'users-p1' ? 'Pass^1' : 'Pass^3';
-    const qwen = lbUserById('qwen'), glm = lbUserById('glm');
+    const score = p3 ? lbP3 : lbP1;
     const points = [];
-    lbFiltered(qwen).forEach(function(a) {
-        const b = glm.entries.find(function(x) { return x.key === a.key; });
-        if (b && metric(a) != null && metric(b) != null) points.push({ e: a, x: metric(a), y: metric(b), sub: a.provider });
+    lbFiltered().forEach(function(e) {
+        const x = cost ? lbCost(e) : (lbTokens(e) ? lbTokens(e).total : null);
+        const y = score(e);
+        if (x != null && y != null) points.push({ e: e, x: x, y: y, sub: e.provider });
     });
     return {
-        xLabel: label + where + ' with the Qwen3-235B user', yLabel: label + where + ' with the GLM-5.2 user', xKind: 'pct',
-        caption: 'Agents evaluated with both user agents. The dashed line marks the same score with both; a point above it does better with the GLM-5.2 user.',
-        diagonal: true,
+        xLabel: (cost ? 'Estimated cost' : 'Agent tokens') + where,
+        yLabel: (p3 ? 'Pass^3' : 'Pass^1') + where,
+        xKind: cost ? 'cost' : 'tokens',
+        minX: true,
         points: points,
     };
 }
@@ -518,10 +493,8 @@ function lbRenderPareto() {
     const data = lbParetoPoints();
     document.getElementById('lb-pair').value = state.pair;
     if (!data.points.length) {
-        box.innerHTML = '<p class="lb-empty">No agents to plot' +
-            (state.pair === 'cost' ? ': none of the filtered agents has both token usage and a list price' :
-             state.pair === 'tokens' ? ': none of the filtered agents has token usage' :
-             state.pair === 'consistency' ? '' : ': none of the filtered agents has results with both user agents') + '.</p>';
+        box.innerHTML = '<p class="lb-empty">No agents to plot: none of the filtered agents has ' +
+            (data.xKind === 'cost' ? 'both token usage and a list price' : 'token usage') + '.</p>';
         return;
     }
     const W = Math.max(320, box.clientWidth - 32), H = Math.max(360, Math.min(560, Math.round(W * 0.52)));

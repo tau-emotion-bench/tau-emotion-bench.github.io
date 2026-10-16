@@ -166,11 +166,10 @@
           <label class="lb-select">
             <span>Compare</span>
             <select id="lb-pair" aria-label="Choose the axes of the Pareto plot">
-              <option value="cost">Pass^1 vs. cost (estimated)</option>
+              <option value="cost">Pass^1 vs. cost</option>
               <option value="tokens">Pass^1 vs. tokens</option>
-              <option value="consistency">Pass^3 vs. Pass^1</option>
-              <option value="users-p1">GLM-5.2 user vs. Qwen3 user (Pass^1)</option>
-              <option value="users-p3">GLM-5.2 user vs. Qwen3 user (Pass^3)</option>
+              <option value="cost-p3">Pass^3 vs. cost</option>
+              <option value="tokens-p3">Pass^3 vs. tokens</option>
             </select>
           </label>
         </div>
@@ -201,7 +200,7 @@
     <ul class="lb-notes">
       <li><b>Pass^1</b> (Avg@3) is the average success rate over three trials. <b>Pass^3</b> (Avg^3) is the share of tasks solved in all three trials, averaged over the ten domains. Both are in %; the bar shows Pass^3 solid and Pass^1 light. <b>Drop</b> is Pass^1 minus Pass^3: what the agent loses to inconsistency.</li>
       <li>An episode fails if the user agent ends it with <code>###UNSATISFIED###</code> before the task is complete.</li>
-      <li>Each user agent has its own ranking: scores are not comparable across user agents. The Pareto view can put the two user agents on its axes for agents evaluated with both.</li>
+      <li>Each user agent has its own ranking: scores are not comparable across user agents.</li>
       <li>Pick a domain above the table to score every view on that domain alone; <b>all domains</b> averages the ten domains, each counting once.</li>
       <li><b>Tokens</b> are the agent's prompt plus completion tokens over every run (580 tasks × 3 trials), from the messages' usage. <b>Cost</b> is an estimate: those tokens at the model's list prices per million input and output tokens, as the runs were self-hosted and their spend is not recorded. Hover a cost for the prices used.</li>
       <li><b>thinking</b> marks a model that reasons before it answers. <b>custom</b> marks a submission that changed the agent side, such as its own agent loop, tools or prompts, or a model trained on τ-Emotion-Bench tasks.</li>
