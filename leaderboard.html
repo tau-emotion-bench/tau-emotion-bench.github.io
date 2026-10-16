@@ -44,10 +44,34 @@
     </p>
 
     <div class="lb-actions">
-      <a class="lb-action" href="https://github.com/sahsaeedi/tau-emotion-bench#running-the-benchmark">Run the benchmark <span>&gt;_</span></a>
+      <a class="lb-action" href="https://github.com/sahsaeedi/tau-emotion-bench#running-the-benchmark">Run the benchmark <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M4 2.5v11l9-5.5-9-5.5Z" fill="currentColor"/></svg></a>
       <a class="lb-action" href="https://github.com/sahsaeedi/tau-emotion-bench/tree/main/data/tau_emotion/domains">View the tasks <span>↗</span></a>
       <a class="lb-action" href="https://github.com/sahsaeedi/tau-emotion-bench/blob/main/docs/leaderboard-submission.md">Submit your model <span>+</span></a>
-      <a class="lb-action" href="index.html#BibTeX">Cite the benchmark <span>”</span></a>
+      <button type="button" class="lb-action" id="lb-cite">Cite the benchmark <span>”</span></button>
+    </div>
+
+    <div class="lb-overlay" id="lb-cite-dialog" role="dialog" aria-modal="true" aria-labelledby="lb-cite-title" hidden>
+    <div class="lb-dialog">
+      <div class="lb-dialog-head">
+        <span id="lb-cite-title">BibTeX</span>
+        <div class="lb-tools">
+          <button type="button" class="lb-icon-btn" id="lb-cite-copy" title="Copy the BibTeX" aria-label="Copy the BibTeX">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="5.5" y="5.5" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 5.5v-2a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
+          <button type="button" class="lb-icon-btn" id="lb-cite-close" title="Close" aria-label="Close">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </div>
+<pre id="lb-bibtex">@article{singh2026tauemotionbench,
+  title={$\tau$-Emotion-Bench: Exposing the Interaction Fragility of LLM Agents through Real-World User Emotions},
+  author={Singh, Rishitosh Kumar and Saeidi, Amir and Hegde, Shamanthak and Kumbhar, Shrinidhi and Baral, Chitta},
+  journal={arXiv preprint arXiv:2610.19560},
+  year={2026},
+  url={https://arxiv.org/abs/2610.19560}
+}</pre>
+      <p class="lb-dialog-foot"><span class="lb-toast" id="lb-cite-toast" role="status" aria-live="polite"></span><a href="https://arxiv.org/abs/2610.19560">arXiv:2610.19560</a></p>
+    </div>
     </div>
 
     <!-- Domain chips: scope every view to one domain, or all of them -->
@@ -132,7 +156,6 @@
           </table>
           <noscript><p class="lb-empty">The leaderboard needs JavaScript to display.</p></noscript>
         </div>
-        <p class="lb-caption" id="lb-ranking-caption"></p>
       </div>
 
       <div class="lb-view" id="view-pareto" data-view="pareto" hidden>
@@ -175,7 +198,7 @@
     <div class="lb-tip" id="lb-tip" role="tooltip" hidden></div>
 
     <ul class="lb-notes">
-      <li><b>Pass^1</b> (Avg@3) is the average success rate over three trials. <b>Pass^3</b> (Avg^3) is the share of tasks solved in all three trials, averaged over the ten domains. Both are in %. <b>Drop</b> is Pass^1 minus Pass^3: what the agent loses to inconsistency.</li>
+      <li><b>Pass^1</b> (Avg@3) is the average success rate over three trials. <b>Pass^3</b> (Avg^3) is the share of tasks solved in all three trials, averaged over the ten domains. Both are in %; the bar shows Pass^3 solid and Pass^1 light. <b>Drop</b> is Pass^1 minus Pass^3: what the agent loses to inconsistency.</li>
       <li>An episode fails if the user agent ends it with <code>###UNSATISFIED###</code> before the task is complete.</li>
       <li>Each user agent has its own ranking: scores are not comparable across user agents. The Pareto view can put the two user agents on its axes for agents evaluated with both.</li>
       <li>Pick a domain above the table to score every view on that domain alone; <b>all domains</b> averages the ten domains, each counting once.</li>

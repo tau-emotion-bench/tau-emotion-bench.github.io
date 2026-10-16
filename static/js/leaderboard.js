@@ -10,7 +10,7 @@ const LB_TASKS_URL = 'https://github.com/sahsaeedi/tau-emotion-bench/tree/main/d
 const LB_LEVELS = ['domains', 'tasks'];
 // Line icons for the domain chips (24x24, stroked)
 const LB_ICONS = {
-    all: '<circle cx="12" cy="12" r="2.2"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/>',
+    all: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
     airline: '<path d="M10.5 13.5 3 10l1.5-1.5 7 1.5 5-5a1.8 1.8 0 0 1 2.5 2.5l-5 5 1.5 7L14 21l-3.5-7.5Z"/><path d="M10.5 13.5 6 18"/>',
     retail: '<path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 11V6a3 3 0 0 1 6 0v5"/>',
     telecom: '<path d="M12 20v-4"/><path d="M12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8Z"/><path d="M5.5 5.5a9 9 0 0 1 13 0M8.3 8.3a5 5 0 0 1 7.4 0"/>',
@@ -327,10 +327,6 @@ function lbBar(e) {
 function lbRenderRanking() {
     const rows = lbSorted(lbFiltered(), state.sort, state.dir);
     const tbody = document.querySelector('#leaderboard tbody');
-    document.getElementById('lb-ranking-caption').textContent = (state.domain === 'all' ?
-        'Pass^1 and Pass^3 averaged over the ten domains. ' :
-        'Pass^1 and Pass^3 on the ' + lbTaskTotal() + ' ' + lbDomainLabel() + ' tasks. ') +
-        'The bar is on a shared 0 to 100 scale: the solid part is Pass^3, the light part extends to Pass^1. Click a column to sort.';
     if (!rows.length) {
         tbody.innerHTML = '<tr><td colspan="8" class="lb-empty">No agents match the filter.</td></tr>';
     } else {
@@ -901,6 +897,25 @@ document.addEventListener('DOMContentLoaded', function() {
         lbRender();
     });
     syncFilterButtons();
+
+    // Citation dialog
+    const citeDialog = document.getElementById('lb-cite-dialog');
+    const citeButton = document.getElementById('lb-cite');
+    const closeCite = function() { citeDialog.hidden = true; citeButton.focus(); };
+    citeButton.addEventListener('click', function() {
+        citeDialog.hidden = false;
+        document.getElementById('lb-cite-copy').focus();
+    });
+    document.getElementById('lb-cite-close').addEventListener('click', closeCite);
+    citeDialog.addEventListener('click', function(event) { if (event.target === citeDialog) closeCite(); });
+    document.addEventListener('keydown', function(event) { if (event.key === 'Escape' && !citeDialog.hidden) closeCite(); });
+    document.getElementById('lb-cite-copy').addEventListener('click', function() {
+        const text = document.getElementById('lb-bibtex').textContent;
+        const toast = document.getElementById('lb-cite-toast');
+        const done = function(msg) { toast.textContent = msg; setTimeout(function() { toast.textContent = ''; }, 2000); };
+        if (navigator.clipboard) navigator.clipboard.writeText(text).then(function() { done('copied'); }, function() { done('select the text to copy it'); });
+        else done('select the text to copy it');
+    });
 
     // Share and export
     document.getElementById('lb-copy').addEventListener('click', function() {
