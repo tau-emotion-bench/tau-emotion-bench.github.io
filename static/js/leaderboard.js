@@ -869,6 +869,78 @@ function lbSetSort(key) {
 
 // ---- Export ----
 
+// ---- Export ----
+
+function lbDownload(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
+}
+
+function lbCsv() {
+    const user = lbCurrentUser();
+    const rows = lbSorted(lbFiltered(user), state.sort, state.dir);
+    const head = ['rank', 'model', 'company', 'thinking', 'submission', 'user_agent', 'scope', 'pass1', 'pass3', 'prompt_tokens', 'completion_tokens', 'cost_estimate_usd', 'added'].concat(
+        LEADERBOARD.domains.map(function(d) { return 'pass3_' + d.toLowerCase(); }));
+    const lines = [head.join(',')].concat(rows.map(function(e, i) {
+        return [i + 1, e.model, e.provider, e.thinking ? 'yes' : 'no', e.custom ? 'custom' : 'standard', user.name, lbDomainLabel(),
+            lbP1(e) == null ? '' : lbP1(e), lbP3(e) == null ? '' : lbP3(e),
+            lbTokens(e) ? lbTokens(e).prompt : '', lbTokens(e) ? lbTokens(e).completion : '',
+            lbCost(e) == null ? '' : lbCost(e).toFixed(2), e.date || 'paper']
+            .concat(e.domains.map(function(v) { return v == null ? '' : v; }))
+            .map(function(v) { return /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v; }).join(',');
+    }));
+    lbDownload(new Blob([lines.join('\n') + '\n'], { type: 'text/csv' }),
+        'tau-emotion-bench-' + user.id + (state.domain === 'all' ? '' : '-' + state.domain) + '.csv');
+}
+
+// The current view's chart (Pareto or radar) as a PNG: the SVG is copied with its
+// computed styles inlined, since the page's stylesheet doesn't travel with it
+const LB_SVG_STYLES = ['fill', 'stroke', 'stroke-width', 'stroke-dasharray', 'stroke-linejoin', 'opacity', 'font-size', 'font-weight', 'font-family', 'letter-spacing', 'text-transform', 'text-anchor'];
+
+function lbChartSvg() {
+    const id = state.view === 'pareto' ? 'lb-pareto' : state.view === 'radar' ? 'lb-radar' : null;
+    return id ? document.querySelector('#' + id + ' svg') : null;
+}
+
+function lbPng() {
+    const svg = lbChartSvg();
+    if (!svg) return;
+    const copy = svg.cloneNode(true);
+    const src = svg.querySelectorAll('*'), dst = copy.querySelectorAll('*');
+    for (let i = 0; i < src.length; i++) {
+        const cs = getComputedStyle(src[i]);
+        LB_SVG_STYLES.forEach(function(p) { dst[i].style.setProperty(p, cs.getPropertyValue(p)); });
+    }
+    const box = svg.viewBox.baseVal;
+    const w = box.width || svg.clientWidth, h = box.height || svg.clientHeight;
+    copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    copy.setAttribute('width', w);
+    copy.setAttribute('height', h);
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bg.setAttribute('width', '100%');
+    bg.setAttribute('height', '100%');
+    bg.setAttribute('fill', getComputedStyle(document.getElementById('lb-panel')).backgroundColor);
+    copy.insertBefore(bg, copy.firstChild);
+    const scale = 2;
+    const canvas = document.createElement('canvas');
+    canvas.width = w * scale;
+    canvas.height = h * scale;
+    const img = new Image();
+    img.onload = function() {
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(function(blob) {
+            if (blob) lbDownload(blob, 'tau-emotion-bench-' + state.view + '-' + lbCurrentUser().id + '.png');
+        }, 'image/png');
+    };
+    img.onerror = function() { lbToast('could not render the chart'); };
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(copy));
+}
+
 function lbToast(text) {
     const toast = document.getElementById('lb-toast');
     toast.textContent = text;
@@ -984,13 +1056,39 @@ document.addEventListener('DOMContentLoaded', function() {
         if (navigator.clipboard) navigator.clipboard.writeText(url).then(function() { lbToast('link copied'); }, function() { lbToast(url); });
         else lbToast(url);
     });
-    document.getElementById('lb-share').addEventListener('click', function() {
-        lbWriteHash();
-        const data = { title: document.title, text: 'τ-Emotion-Bench leaderboard', url: location.href };
-        if (navigator.share) navigator.share(data).catch(function() {});
-        else if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(function() { lbToast('link copied'); }, function() { lbToast(location.href); });
-        else lbToast(location.href);
+    // Share menu: link, native share, CSV, PNG of the chart
+    const shareBtn = document.getElementById('lb-share'), shareMenu = document.getElementById('lb-share-menu');
+    const closeShare = function() { shareMenu.hidden = true; shareBtn.setAttribute('aria-expanded', 'false'); };
+    shareBtn.addEventListener('click', function() {
+        const open = shareMenu.hidden;
+        shareMenu.querySelector('[data-action="share"]').hidden = !navigator.share;
+        const png = shareMenu.querySelector('[data-action="png"]');
+        png.disabled = !lbChartSvg();
+        png.title = png.disabled ? 'Open the Pareto or radar view to download its chart' : '';
+        shareMenu.hidden = !open;
+        shareBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
+    shareMenu.addEventListener('click', function(event) {
+        const b = event.target.closest('button');
+        if (!b || b.disabled) return;
+        closeShare();
+        lbWriteHash();
+        const url = location.href;
+        if (b.dataset.action === 'link') {
+            if (navigator.clipboard) navigator.clipboard.writeText(url).then(function() { lbToast('link copied'); }, function() { lbToast(url); });
+            else lbToast(url);
+        } else if (b.dataset.action === 'share') {
+            navigator.share({ title: document.title, text: 'τ-Emotion-Bench leaderboard', url: url }).catch(function() {});
+        } else if (b.dataset.action === 'csv') {
+            lbCsv();
+        } else if (b.dataset.action === 'png') {
+            lbPng();
+        }
+    });
+    document.addEventListener('click', function(event) {
+        if (!shareMenu.hidden && !event.target.closest('#lb-share-menu') && event.target.closest('#lb-share') !== shareBtn) closeShare();
+    });
+    document.addEventListener('keydown', function(event) { if (event.key === 'Escape') closeShare(); });
 
     // Charts follow the panel width
     let resizeTimer;

@@ -371,6 +371,42 @@ button.lb-action {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
+.lb-menu {
+  position: absolute;
+  z-index: 5;
+  top: 36px;
+  left: 0;
+  min-width: 220px;
+  padding: 4px;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.lb-menu button {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  color: var(--fg);
+  background: none;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.lb-menu button:hover {
+  background: var(--row-hover);
+}
+
+.lb-menu button[disabled] {
+  color: var(--muted);
+  cursor: default;
+}
+
 .lb-filter-row {
   display: flex;
   align-items: center;

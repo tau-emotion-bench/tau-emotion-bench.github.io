@@ -83,9 +83,17 @@
         <button type="button" class="lb-icon-btn" id="lb-copy" title="Copy a link to this view" aria-label="Copy a link to this view">
           <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6.5 9.5a3 3 0 0 0 4.2 0l2-2a3 3 0 0 0-4.2-4.2l-1 1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M9.5 6.5a3 3 0 0 0-4.2 0l-2 2a3 3 0 0 0 4.2 4.2l1-1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
-        <button type="button" class="lb-icon-btn" id="lb-share" title="Share this view" aria-label="Share this view">
-          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="12" cy="3.5" r="1.8"/><circle cx="4" cy="8" r="1.8"/><circle cx="12" cy="12.5" r="1.8"/><path d="M5.6 7.1 10.4 4.4M5.6 8.9l4.8 2.7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-        </button>
+        <div class="lb-filter-wrap">
+          <button type="button" class="lb-icon-btn" id="lb-share" aria-expanded="false" aria-controls="lb-share-menu" title="Share or download" aria-label="Share or download">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="12" cy="3.5" r="1.8"/><circle cx="4" cy="8" r="1.8"/><circle cx="12" cy="12.5" r="1.8"/><path d="M5.6 7.1 10.4 4.4M5.6 8.9l4.8 2.7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </button>
+          <div class="lb-menu" id="lb-share-menu" hidden>
+            <button type="button" data-action="link">Copy link to this view</button>
+            <button type="button" data-action="share" hidden>Share…</button>
+            <button type="button" data-action="csv">Download CSV</button>
+            <button type="button" data-action="png">Download chart as PNG</button>
+          </div>
+        </div>
         <span class="lb-toast" id="lb-toast" role="status" aria-live="polite"></span>
       </div>
       <div class="lb-tools lb-tools-right">
