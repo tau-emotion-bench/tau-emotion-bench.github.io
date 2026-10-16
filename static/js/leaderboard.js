@@ -516,7 +516,6 @@ function lbParetoTip(data, p) {
 function lbRenderPareto() {
     const box = document.getElementById('lb-pareto');
     const data = lbParetoPoints();
-    document.getElementById('lb-pareto-caption').textContent = data.caption;
     document.getElementById('lb-pair').value = state.pair;
     if (!data.points.length) {
         box.innerHTML = '<p class="lb-empty">No agents to plot' +
@@ -626,10 +625,6 @@ function lbRenderMatrix() {
     document.getElementById('lb-level-hint').textContent = state.level === 'tasks' ?
         (state.domain === 'all' ? 'all ' + LEADERBOARD.tasks + ' tasks; pick a domain above to narrow' : 'the ' + lbTaskTotal() + ' ' + lbDomainLabel() + ' tasks') :
         'Pass^3 per domain';
-    document.getElementById('lb-matrix-caption').textContent = state.level === 'tasks' ?
-        'Trials solved out of ' + LEADERBOARD.trials + ' for each task. Click a task to open the domain\'s task file; hover a cell for the task id. ' +
-        'Rows without cells are paper results whose trajectories were not released.' :
-        'Pass^3 per domain: the share of that domain\'s tasks solved in all three trials. Click a domain to sort by it; hover a cell for Pass^1 where the submission reports it.';
     if (state.level === 'tasks') lbRenderTaskMatrix();
     else lbRenderDomainMatrix();
 }
