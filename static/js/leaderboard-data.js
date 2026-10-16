@@ -6,6 +6,23 @@
 //   domains  = Pass^3 per domain, in the order of `domains`, in percent
 const LEADERBOARD = {
   updated: "2026-10-12",
+  // List prices in US dollars per million tokens, used with the agent's token counts for the cost
+  // estimate (the runs were self-hosted, so what they cost is not recorded). Provider list prices
+  // as reported by pricing trackers in October 2026; a thinking and a non-thinking run of the same
+  // model share its price.
+  prices: {
+    "DeepSeek-V4.1-Flash":           { input: 0.30, output: 1.20, source: "https://anotherwrapper.com/llm-pricing/deepseek-v4.1-flash" },
+    "GLM-5.3":                       { input: 1.40, output: 4.40, source: "https://anotherwrapper.com/llm-pricing/glm-5.3" },
+    "Qwen3.8-27B":                   { input: 0.45, output: 3.20, source: "https://anotherwrapper.com/llm-pricing/qwen3.8-27b" },
+    "Kimi-K2.7-Code":                { input: 0.95, output: 4.00, source: "https://www.eesel.ai/blog/kimi-k2-7-code-pricing" },
+    "Gemma-4-31B-it":                { input: 0.14, output: 0.40, source: "https://anotherwrapper.com/llm-pricing/gemma-4-31b-it" },
+    "MiniMax-M2.7":                  { input: 0.30, output: 1.20, source: "https://developer.puter.com/tutorials/minimax-api-pricing/" },
+    "MiniMax-M3":                    { input: 0.30, output: 1.20, source: "https://developer.puter.com/tutorials/minimax-api-pricing/" },
+    "Qwen3-235B-A22B-Thinking-2507": { input: 0.30, output: 3.00, source: "https://anotherwrapper.com/llm-pricing/qwen3-235b-a22b-thinking-2507" },
+    "Muse-Glimmer-30B":              { input: 0.35, output: 1.50, source: "https://anotherwrapper.com/llm-pricing/muse-glimmer-30b" },
+    "Qwen3-235B-A22B-Instruct-2507": { input: 0.15, output: 0.80, source: "https://anotherwrapper.com/tools/llm-pricing/qwen3-235b-a22b-thinking-2507/qwen3-235b-a22b-instruct-2507" },
+    "Qwen3-32B":                     { input: 0.10, output: 0.44, source: "https://anotherwrapper.com/tools/llm-pricing/qwen3-32b/qwen3-14b" },
+  },
   tasks: 580,
   trials: 3,
   domains: ["Airline", "Retail", "Telecom", "Telehealth", "School", "Basketball", "Restaurant", "Travel", "Movie", "Bank"],

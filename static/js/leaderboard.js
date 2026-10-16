@@ -5,7 +5,7 @@ const LB_SUBMISSIONS = 'https://raw.githubusercontent.com/sahsaeedi/tau-emotion-
 // Submissions name each user agent by its model; the switch uses these ids
 const LB_USER_IDS = { 'qwen3-235b-a22b-instruct-2507': 'qwen', 'glm-5.2': 'glm' };
 const LB_VIEWS = ['ranking', 'pareto', 'matrix', 'radar'];
-const LB_PAIRS = ['consistency', 'users-p1', 'users-p3'];
+const LB_PAIRS = ['cost', 'tokens', 'consistency', 'users-p1', 'users-p3'];
 const LB_TASKS_URL = 'https://github.com/sahsaeedi/tau-emotion-bench/tree/main/data/tau_emotion/domains';
 const LB_LEVELS = ['domains', 'tasks'];
 // Line icons for the domain chips (24x24, stroked)
@@ -31,7 +31,7 @@ const state = {
     thinking: 'all',
     type: 'all',
     q: '',
-    pair: 'consistency',
+    pair: 'cost',
     level: 'domains',  // matrix: one column per domain, or per task
     domain: 'all',     // matrix at task level: which domain's tasks
     pin: null,       // radar: pinned entry key
@@ -51,7 +51,7 @@ function lbDomainIds() {
 // Trials solved per task, {domain: [count or null per task]}, from the digit strings
 // in leaderboard-tasks.js (paper models) or a submission's task -> count map
 function lbTaskCounts(userId, key, taskMap) {
-    const tasks = typeof LEADERBOARD_TASKS === 'undefined' ? null : LEADERBOARD_TASKS;
+    const tasks = typeof LEADERBOARD_RUNS === 'undefined' ? null : LEADERBOARD_RUNS;
     if (!tasks) return null;
     const digits = taskMap ? null : (tasks.counts[userId] || {})[key];
     if (!taskMap && !digits) return null;
@@ -67,6 +67,64 @@ function lbTaskCounts(userId, key, taskMap) {
     return out;
 }
 
+// The agent's [prompt, completion] tokens per domain, from leaderboard-runs.js (paper
+// models) or a submission's per-domain results; null for a domain without usage
+function lbUsage(userId, key, domainResults) {
+    const runs = typeof LEADERBOARD_RUNS === 'undefined' ? null : LEADERBOARD_RUNS;
+    const out = {};
+    let any = false;
+    lbDomainIds().forEach(function(d) {
+        let v = null;
+        if (domainResults) {
+            const r = domainResults[d];
+            if (r && r.prompt_tokens != null) v = [Number(r.prompt_tokens), Number(r.completion_tokens || 0)];
+        } else if (runs && runs.usage && runs.usage[userId] && runs.usage[userId][key]) {
+            v = runs.usage[userId][key][d] || null;
+        }
+        out[d] = v;
+        if (v) any = true;
+    });
+    return any ? out : null;
+}
+
+// Tokens in the current domain scope: {prompt, completion, total}, or null when a
+// domain in the scope has no usage
+function lbTokens(e) {
+    if (!e.usage) return null;
+    const domains = state.domain === 'all' ? lbDomainIds() : [state.domain];
+    let prompt = 0, completion = 0;
+    for (let i = 0; i < domains.length; i++) {
+        const v = e.usage[domains[i]];
+        if (!v) return null;
+        prompt += v[0];
+        completion += v[1];
+    }
+    return { prompt: prompt, completion: completion, total: prompt + completion };
+}
+
+// Estimated cost in dollars: tokens at the model's list prices per million
+function lbCost(e) {
+    const t = lbTokens(e);
+    if (!t || !e.price) return null;
+    return t.prompt / 1e6 * e.price.input + t.completion / 1e6 * e.price.output;
+}
+
+function lbFmtTokens(n) {
+    if (n == null) return '–';
+    if (n >= 1e9) return (n / 1e9).toFixed(n >= 1e10 ? 0 : 1) + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(n >= 1e7 ? 0 : 1) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(n >= 1e4 ? 0 : 1) + 'k';
+    return String(Math.round(n));
+}
+
+function lbFmtCost(v) {
+    if (v == null) return '–';
+    if (v >= 1000) return '$' + Math.round(v).toLocaleString('en-US');
+    if (v >= 100) return '$' + v.toFixed(0);
+    if (v >= 10) return '$' + v.toFixed(1);
+    return '$' + v.toFixed(2);
+}
+
 function lbPrepare() {
     LEADERBOARD.userAgents.forEach(function(user) {
         user.entries.forEach(function(e) {
@@ -77,6 +135,8 @@ function lbPrepare() {
             e.key = lbKey(e);
             e.gap = e.pass1 - e.pass3;
             e.tasks = lbTaskCounts(user.id, e.key, null);
+            e.usage = lbUsage(user.id, e.key, null);
+            e.price = (LEADERBOARD.prices || {})[e.model] || null;
             if (e.tasks) {
                 e.domainsP1 = lbDomainIds().map(function(d) {
                     const counts = (e.tasks[d] || []).filter(function(k) { return k != null; });
@@ -116,13 +176,13 @@ function lbDomainLabel() {
 }
 
 function lbTaskTotal() {
-    const tasks = typeof LEADERBOARD_TASKS === 'undefined' ? null : LEADERBOARD_TASKS;
+    const tasks = typeof LEADERBOARD_RUNS === 'undefined' ? null : LEADERBOARD_RUNS;
     if (state.domain === 'all' || !tasks) return LEADERBOARD.tasks;
     return (tasks.taskIds[state.domain] || []).length || LEADERBOARD.tasks;
 }
 
 function lbRenderDomains() {
-    const tasks = typeof LEADERBOARD_TASKS === 'undefined' ? null : LEADERBOARD_TASKS;
+    const tasks = typeof LEADERBOARD_RUNS === 'undefined' ? null : LEADERBOARD_RUNS;
     const chips = [{ id: 'all', name: 'All', sub: 'domains' }].concat(LEADERBOARD.domains.map(function(d) {
         const n = tasks ? (tasks.taskIds[d.toLowerCase()] || []).length : 0;
         return { id: d.toLowerCase(), name: d, sub: n ? n + ' tasks' : 'domain' };
@@ -163,6 +223,8 @@ function lbAddSubmissions(submissions) {
             e.key = lbKey(e);
             e.gap = e.pass1 - e.pass3;
             e.tasks = r.tasks && Object.keys(r.tasks).length ? lbTaskCounts(user.id, e.key, r.tasks) : null;
+            e.usage = lbUsage(user.id, e.key, r.domains);
+            e.price = s.pricing ? { input: Number(s.pricing.input_per_million), output: Number(s.pricing.output_per_million), source: s.pricing.source || '' } : null;
             // A hand-maintained paper row with the same model gives way to the submission
             user.entries = user.entries.filter(function(x) { return x.key !== e.key; });
             user.entries.push(e);
@@ -204,6 +266,8 @@ function lbValue(e, key) {
     if (key === 'pass1') { const v = lbP1(e); return v == null ? -1 : v; }
     if (key === 'pass3') { const v = lbP3(e); return v == null ? -1 : v; }
     if (key === 'gap') { const v = lbGap(e); return v == null ? -1 : v; }
+    if (key === 'tokens') { const v = lbTokens(e); return v == null ? -1 : v.total; }
+    if (key === 'cost') { const v = lbCost(e); return v == null ? -1 : v; }
     return e[key];
 }
 
@@ -260,7 +324,7 @@ function lbWriteHash() {
     if (state.view !== 'ranking') params.set('view', state.view);
     if (state.user !== LEADERBOARD.userAgents[0].id) params.set('user', state.user);
     if (state.sort !== 'pass1' || state.dir !== 'desc') params.set('sort', state.sort + ':' + state.dir);
-    if (state.view === 'pareto' && state.pair !== 'consistency') params.set('pair', state.pair);
+    if (state.view === 'pareto' && state.pair !== 'cost') params.set('pair', state.pair);
     if (state.view === 'matrix' && state.level !== 'domains') params.set('level', state.level);
     if (state.domain !== 'all') params.set('domain', state.domain);
     if (state.thinking !== 'all') params.set('thinking', state.thinking);
@@ -324,6 +388,19 @@ function lbBar(e) {
         '<span class="lb-p1" style="width:' + p1 + '%"></span><span class="lb-p3" style="width:' + p3 + '%"></span></div>';
 }
 
+function lbTokensCell(e, cls) {
+    const t = lbTokens(e);
+    const title = t ? lbFmtTokens(t.prompt) + ' prompt + ' + lbFmtTokens(t.completion) + ' completion' : 'no usage recorded';
+    return '<td class="num col-tokens' + cls + '" title="' + lbEscape(title) + '">' + (t ? lbFmtTokens(t.total) : '–') + '</td>';
+}
+
+function lbCostCell(e, cls) {
+    const v = lbCost(e);
+    const title = !lbTokens(e) ? 'no usage recorded' : !e.price ? 'no list price known' :
+        'at $' + e.price.input + ' in / $' + e.price.output + ' out per million tokens';
+    return '<td class="num col-cost' + cls + '" title="' + lbEscape(title) + '">' + lbFmtCost(v) + '</td>';
+}
+
 function lbRenderRanking() {
     const rows = lbSorted(lbFiltered(), state.sort, state.dir);
     const tbody = document.querySelector('#leaderboard tbody');
@@ -340,6 +417,7 @@ function lbRenderRanking() {
                 '<td class="col-bar">' + lbBar(e) + '</td>' +
                 '<td class="num' + sorted('pass3') + '">' + lbPct(lbP3(e)) + '</td>' +
                 '<td class="num col-gap' + sorted('gap') + '">' + (lbGap(e) == null ? '–' : lbGap(e).toFixed(1)) + '</td>' +
+                lbTokensCell(e, sorted('tokens')) + lbCostCell(e, sorted('cost')) +
                 '<td class="num date col-date' + sorted('date') + '">' +
                     (e.date ? (e.url ? '<a href="' + lbEscape(e.url) + '" title="Download the trajectories">' + e.date + '</a>' : e.date) : 'paper') + '</td>' +
                 '</tr>';
@@ -357,9 +435,26 @@ function lbRenderRanking() {
 function lbParetoPoints() {
     const pair = state.pair;
     const where = state.domain === 'all' ? '' : ' on ' + lbDomainLabel();
+    if (pair === 'cost' || pair === 'tokens') {
+        const cost = pair === 'cost';
+        const points = [];
+        lbFiltered().forEach(function(e) {
+            const x = cost ? lbCost(e) : (lbTokens(e) ? lbTokens(e).total : null);
+            const y = lbP1(e);
+            if (x != null && y != null) points.push({ e: e, x: x, y: y, sub: e.provider });
+        });
+        return {
+            xLabel: cost ? 'Estimated cost' + where : 'Agent tokens' + where, yLabel: 'Pass^1' + where,
+            xKind: cost ? 'cost' : 'tokens', minX: true,
+            caption: cost ?
+                'Cost is the agent\'s tokens at the model\'s list prices, an estimate; agents without a known price are left out. The frontier joins the agents no other agent beats on both Pass^1 and cost.' :
+                'Tokens are the agent\'s prompt and completion tokens over every run. The frontier joins the agents no other agent beats on both Pass^1 and tokens.',
+            points: points,
+        };
+    }
     if (pair === 'consistency') {
         return {
-            xLabel: 'Pass^1' + where, yLabel: 'Pass^3' + where,
+            xLabel: 'Pass^1' + where, yLabel: 'Pass^3' + where, xKind: 'pct',
             caption: 'Agents on the frontier are not beaten on both Pass^1 and Pass^3 by any other agent. The dashed line is Pass^3 = Pass^1: perfect consistency across trials.',
             diagonal: true,
             points: lbFiltered().filter(function(e) { return lbP1(e) != null && lbP3(e) != null; })
@@ -375,26 +470,47 @@ function lbParetoPoints() {
         if (b && metric(a) != null && metric(b) != null) points.push({ e: a, x: metric(a), y: metric(b), sub: a.provider });
     });
     return {
-        xLabel: label + where + ' with the Qwen3-235B user', yLabel: label + where + ' with the GLM-5.2 user',
+        xLabel: label + where + ' with the Qwen3-235B user', yLabel: label + where + ' with the GLM-5.2 user', xKind: 'pct',
         caption: 'Agents evaluated with both user agents. The dashed line marks the same score with both; a point above it does better with the GLM-5.2 user.',
         diagonal: true,
         points: points,
     };
 }
 
-function lbFrontier(points) {
-    // Non-dominated set: no other point is at least as good on both axes and better on one
+// Non-dominated set: no other point is at least as good on both axes and better on one.
+// y is always maximised; x is maximised, or minimised when minX is set.
+function lbFrontier(points, minX) {
+    const betterX = function(q, p) { return minX ? q.x <= p.x : q.x >= p.x; };
+    const strictX = function(q, p) { return minX ? q.x < p.x : q.x > p.x; };
     return points.filter(function(p) {
         return !points.some(function(q) {
-            return q !== p && q.x >= p.x && q.y >= p.y && (q.x > p.x || q.y > p.y);
+            return q !== p && betterX(q, p) && q.y >= p.y && (strictX(q, p) || q.y > p.y);
         });
     }).sort(function(a, b) { return a.x - b.x; });
 }
 
-function lbNiceMax(values) {
+// An axis from 0 to a round maximum: {max, ticks, fmt}
+function lbAxis(kind, values) {
     const max = Math.max.apply(null, values.concat([0]));
-    const step = max > 50 ? 20 : 10;
-    return Math.max(step, Math.ceil((max + step * 0.3) / step) * step);
+    if (kind === 'pct') {
+        const step = max > 50 ? 20 : 10;
+        const top = Math.max(step, Math.ceil((max + step * 0.3) / step) * step);
+        const ticks = [];
+        for (let v = 0; v <= top; v += step) ticks.push(v);
+        return { max: top, ticks: ticks, fmt: function(v) { return v + '%'; } };
+    }
+    const raw = Math.max(max, 1e-9) * 1.1 / 5;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const step = [1, 2, 5, 10].map(function(m) { return m * mag; }).find(function(st) { return st >= raw; });
+    const top = Math.ceil(max * 1.1 / step) * step || step;
+    const ticks = [];
+    for (let i = 0; i * step <= top + 1e-9; i++) ticks.push(i * step);
+    return { max: top, ticks: ticks, fmt: kind === 'cost' ? lbFmtCost : lbFmtTokens };
+}
+
+function lbParetoTip(data, p) {
+    const fx = data.xKind === 'cost' ? lbFmtCost : data.xKind === 'tokens' ? lbFmtTokens : lbPct;
+    return '<span>' + lbEscape(data.xLabel) + '</span> ' + fx(p.x) + ' · <span>' + lbEscape(data.yLabel) + '</span> ' + lbPct(p.y);
 }
 
 function lbRenderPareto() {
@@ -403,41 +519,40 @@ function lbRenderPareto() {
     document.getElementById('lb-pareto-caption').textContent = data.caption;
     document.getElementById('lb-pair').value = state.pair;
     if (!data.points.length) {
-        box.innerHTML = '<p class="lb-empty">No agents to plot' + (state.pair === 'consistency' ? '' : ': none of the filtered agents has results with both user agents') + '.</p>';
+        box.innerHTML = '<p class="lb-empty">No agents to plot' +
+            (state.pair === 'cost' ? ': none of the filtered agents has both token usage and a list price' :
+             state.pair === 'tokens' ? ': none of the filtered agents has token usage' :
+             state.pair === 'consistency' ? '' : ': none of the filtered agents has results with both user agents') + '.</p>';
         return;
     }
     const W = Math.max(320, box.clientWidth - 32), H = Math.max(360, Math.min(560, Math.round(W * 0.52)));
     const m = { top: 24, right: 150, bottom: 52, left: 64 };
     if (W < 600) m.right = 40;
     const pw = W - m.left - m.right, ph = H - m.top - m.bottom;
-    const xMax = lbNiceMax(data.points.map(function(p) { return p.x; }));
-    const yMax = lbNiceMax(data.points.map(function(p) { return p.y; }));
-    const sx = function(v) { return m.left + v / xMax * pw; };
-    const sy = function(v) { return m.top + ph - v / yMax * ph; };
-    const frontier = lbFrontier(data.points);
+    const xAxis = lbAxis(data.xKind, data.points.map(function(p) { return p.x; }));
+    const yAxis = lbAxis('pct', data.points.map(function(p) { return p.y; }));
+    const sx = function(v) { return m.left + v / xAxis.max * pw; };
+    const sy = function(v) { return m.top + ph - v / yAxis.max * ph; };
+    const frontier = lbFrontier(data.points, data.minX);
     const onFrontier = {};
     frontier.forEach(function(p) { onFrontier[p.e.key] = true; });
 
     let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="' +
         lbEscape(data.yLabel) + ' against ' + lbEscape(data.xLabel) + '">';
-    // Grid and ticks
-    const xStep = xMax > 50 ? 20 : 10, yStep = yMax > 50 ? 20 : 10;
-    for (let v = 0; v <= xMax; v += xStep) {
+    xAxis.ticks.forEach(function(v) {
         svg += '<line class="lb-grid" x1="' + sx(v) + '" x2="' + sx(v) + '" y1="' + m.top + '" y2="' + (m.top + ph) + '"/>';
-        svg += '<text class="lb-axis-text" x="' + sx(v) + '" y="' + (m.top + ph + 18) + '" text-anchor="middle">' + v + '%</text>';
-    }
-    for (let v = 0; v <= yMax; v += yStep) {
+        svg += '<text class="lb-axis-text" x="' + sx(v) + '" y="' + (m.top + ph + 18) + '" text-anchor="middle">' + lbEscape(xAxis.fmt(v)) + '</text>';
+    });
+    yAxis.ticks.forEach(function(v) {
         svg += '<line class="lb-grid" x1="' + m.left + '" x2="' + (m.left + pw) + '" y1="' + sy(v) + '" y2="' + sy(v) + '"/>';
-        svg += '<text class="lb-axis-text" x="' + (m.left - 8) + '" y="' + (sy(v) + 4) + '" text-anchor="end">' + v + '%</text>';
-    }
+        svg += '<text class="lb-axis-text" x="' + (m.left - 8) + '" y="' + (sy(v) + 4) + '" text-anchor="end">' + lbEscape(yAxis.fmt(v)) + '</text>';
+    });
     svg += '<text class="lb-axis-title" x="' + (m.left + pw / 2) + '" y="' + (H - 10) + '" text-anchor="middle">' + lbEscape(data.xLabel) + '</text>';
     svg += '<text class="lb-axis-title" transform="translate(14 ' + (m.top + ph / 2) + ') rotate(-90)" text-anchor="middle">' + lbEscape(data.yLabel) + '</text>';
-    // Reference diagonal
     if (data.diagonal) {
-        const d = Math.min(xMax, yMax);
+        const d = Math.min(xAxis.max, yAxis.max);
         svg += '<line class="lb-ref" x1="' + sx(0) + '" y1="' + sy(0) + '" x2="' + sx(d) + '" y2="' + sy(d) + '"/>';
     }
-    // Frontier
     if (frontier.length > 1) {
         svg += '<polyline class="lb-frontier" points="' + frontier.map(function(p) { return sx(p.x) + ',' + sy(p.y); }).join(' ') + '"/>';
     }
@@ -472,7 +587,6 @@ function lbRenderPareto() {
         boxes.push(pick.box);
         return { p: p, x: pick.x, y: pick.y, anchor: pick.anchor, crowded: pick.crowded };
     });
-    // Points
     data.points.forEach(function(p) {
         const f = onFrontier[p.e.key] ? ' on-frontier' : '';
         svg += '<g class="lb-point" data-key="' + lbEscape(p.e.key) + '">' +
@@ -494,8 +608,7 @@ function lbRenderPareto() {
     box.querySelectorAll('.lb-point').forEach(function(g) {
         const p = data.points.find(function(x) { return x.e.key === g.dataset.key; });
         g.addEventListener('mouseenter', function(event) {
-            lbTipShow('<b>' + lbEscape(p.e.model) + '</b> <span>' + lbEscape(p.sub) + '</span><br>' +
-                '<span>' + lbEscape(data.xLabel) + '</span> ' + lbPct(p.x) + ' · <span>' + lbEscape(data.yLabel) + '</span> ' + lbPct(p.y) +
+            lbTipShow('<b>' + lbEscape(p.e.model) + '</b> <span>' + lbEscape(p.sub) + '</span><br>' + lbParetoTip(data, p) +
                 (onFrontier[p.e.key] ? '<br><span>on the frontier</span>' : ''), event);
         });
         g.addEventListener('mousemove', lbTipMove);
@@ -524,7 +637,7 @@ function lbRenderMatrix() {
 function lbRenderTaskMatrix() {
     const box = document.getElementById('lb-matrix');
     const rows = lbSorted(lbFiltered(), state.sort, state.dir);
-    const tasks = typeof LEADERBOARD_TASKS === 'undefined' ? null : LEADERBOARD_TASKS;
+    const tasks = typeof LEADERBOARD_RUNS === 'undefined' ? null : LEADERBOARD_RUNS;
     if (!tasks) {
         box.innerHTML = '<p class="lb-empty">Per-task results are not available.</p>';
         return;
@@ -791,11 +904,13 @@ function lbSetSort(key) {
 function lbCsv() {
     const user = lbCurrentUser();
     const rows = lbSorted(lbFiltered(user), state.sort, state.dir);
-    const head = ['rank', 'model', 'company', 'thinking', 'submission', 'user_agent', 'scope', 'pass1', 'pass3', 'added'].concat(
+    const head = ['rank', 'model', 'company', 'thinking', 'submission', 'user_agent', 'scope', 'pass1', 'pass3', 'prompt_tokens', 'completion_tokens', 'cost_estimate_usd', 'added'].concat(
         LEADERBOARD.domains.map(function(d) { return 'pass3_' + d.toLowerCase(); }));
     const lines = [head.join(',')].concat(rows.map(function(e, i) {
         return [i + 1, e.model, e.provider, e.thinking ? 'yes' : 'no', e.custom ? 'custom' : 'standard', user.name, lbDomainLabel(),
-            lbP1(e) == null ? '' : lbP1(e), lbP3(e) == null ? '' : lbP3(e), e.date || 'paper']
+            lbP1(e) == null ? '' : lbP1(e), lbP3(e) == null ? '' : lbP3(e),
+            lbTokens(e) ? lbTokens(e).prompt : '', lbTokens(e) ? lbTokens(e).completion : '',
+            lbCost(e) == null ? '' : lbCost(e).toFixed(2), e.date || 'paper']
             .concat(e.domains.map(function(v) { return v == null ? '' : v; }))
             .map(function(v) { return /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v; }).join(',');
     }));

@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="static/css/site.css">
   <link rel="stylesheet" href="static/css/leaderboard.css">
   <script defer src="static/js/theme.js"></script>
-  <script defer src="static/js/leaderboard-tasks.js"></script>
+  <script defer src="static/js/leaderboard-runs.js"></script>
   <script defer src="static/js/leaderboard-data.js"></script>
   <script defer src="static/js/leaderboard.js"></script>
 </head>
@@ -149,6 +149,8 @@
                 <th class="col-bar" aria-hidden="true"><div class="lb-axis"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div></th>
                 <th class="num"><button type="button" data-sort="pass3">Pass^3</button></th>
                 <th class="num col-gap"><button type="button" data-sort="gap" title="Pass^1 minus Pass^3: how much is lost to inconsistency">Drop</button></th>
+                <th class="num col-tokens"><button type="button" data-sort="tokens" title="The agent's prompt and completion tokens over every run">Tokens</button></th>
+                <th class="num col-cost"><button type="button" data-sort="cost" title="Tokens priced at the model's list prices: an estimate">Cost</button></th>
                 <th class="num col-date"><button type="button" data-sort="date">Added</button></th>
               </tr>
             </thead>
@@ -164,6 +166,8 @@
           <label class="lb-select">
             <span>Compare</span>
             <select id="lb-pair" aria-label="Choose the axes of the Pareto plot">
+              <option value="cost">Pass^1 vs. cost (estimated)</option>
+              <option value="tokens">Pass^1 vs. tokens</option>
               <option value="consistency">Pass^3 vs. Pass^1</option>
               <option value="users-p1">GLM-5.2 user vs. Qwen3 user (Pass^1)</option>
               <option value="users-p3">GLM-5.2 user vs. Qwen3 user (Pass^3)</option>
@@ -202,6 +206,7 @@
       <li>An episode fails if the user agent ends it with <code>###UNSATISFIED###</code> before the task is complete.</li>
       <li>Each user agent has its own ranking: scores are not comparable across user agents. The Pareto view can put the two user agents on its axes for agents evaluated with both.</li>
       <li>Pick a domain above the table to score every view on that domain alone; <b>all domains</b> averages the ten domains, each counting once.</li>
+      <li><b>Tokens</b> are the agent's prompt plus completion tokens over every run (580 tasks × 3 trials), from the messages' usage. <b>Cost</b> is an estimate: those tokens at the model's list prices per million input and output tokens, as the runs were self-hosted and their spend is not recorded. Hover a cost for the prices used.</li>
       <li><b>thinking</b> marks a model that reasons before it answers. <b>custom</b> marks a submission that changed the agent side, such as its own agent loop, tools or prompts, or a model trained on τ-Emotion-Bench tasks.</li>
       <li>Rows marked <b>paper</b> are from the <a href="https://arxiv.org/abs/2610.19560">paper</a>; dated rows are <a href="https://github.com/sahsaeedi/tau-emotion-bench/tree/main/submissions">accepted submissions</a>, each with its trajectories. To add your model, follow the <a href="https://github.com/sahsaeedi/tau-emotion-bench/blob/main/docs/leaderboard-submission.md">submission guide</a>.</li>
     </ul>
