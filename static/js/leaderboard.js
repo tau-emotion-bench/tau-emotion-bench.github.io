@@ -869,29 +869,6 @@ function lbSetSort(key) {
 
 // ---- Export ----
 
-function lbCsv() {
-    const user = lbCurrentUser();
-    const rows = lbSorted(lbFiltered(user), state.sort, state.dir);
-    const head = ['rank', 'model', 'company', 'thinking', 'submission', 'user_agent', 'scope', 'pass1', 'pass3', 'prompt_tokens', 'completion_tokens', 'cost_estimate_usd', 'added'].concat(
-        LEADERBOARD.domains.map(function(d) { return 'pass3_' + d.toLowerCase(); }));
-    const lines = [head.join(',')].concat(rows.map(function(e, i) {
-        return [i + 1, e.model, e.provider, e.thinking ? 'yes' : 'no', e.custom ? 'custom' : 'standard', user.name, lbDomainLabel(),
-            lbP1(e) == null ? '' : lbP1(e), lbP3(e) == null ? '' : lbP3(e),
-            lbTokens(e) ? lbTokens(e).prompt : '', lbTokens(e) ? lbTokens(e).completion : '',
-            lbCost(e) == null ? '' : lbCost(e).toFixed(2), e.date || 'paper']
-            .concat(e.domains.map(function(v) { return v == null ? '' : v; }))
-            .map(function(v) { return /[",\n]/.test(String(v)) ? '"' + String(v).replace(/"/g, '""') + '"' : v; }).join(',');
-    }));
-    const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'tau-emotion-bench-leaderboard-' + user.id + '.csv';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(function() { URL.revokeObjectURL(a.href); }, 1000);
-}
-
 function lbToast(text) {
     const toast = document.getElementById('lb-toast');
     toast.textContent = text;
@@ -1007,7 +984,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (navigator.clipboard) navigator.clipboard.writeText(url).then(function() { lbToast('link copied'); }, function() { lbToast(url); });
         else lbToast(url);
     });
-    document.getElementById('lb-csv').addEventListener('click', lbCsv);
+    document.getElementById('lb-share').addEventListener('click', function() {
+        lbWriteHash();
+        const data = { title: document.title, text: 'τ-Emotion-Bench leaderboard', url: location.href };
+        if (navigator.share) navigator.share(data).catch(function() {});
+        else if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(function() { lbToast('link copied'); }, function() { lbToast(location.href); });
+        else lbToast(location.href);
+    });
 
     // Charts follow the panel width
     let resizeTimer;
