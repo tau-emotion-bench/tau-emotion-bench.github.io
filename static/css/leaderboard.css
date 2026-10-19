@@ -815,6 +815,58 @@ button.lb-action {
   fill: var(--accent);
 }
 
+.lb-label-num {
+  font-size: 11px;
+}
+
+.lb-point.is-active .lb-dot {
+  fill: var(--fg);
+}
+
+/* Phones: the key that names the numbered points */
+.lb-pkey {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+
+.lb-pkey li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 4px;
+  border-top: 1px solid var(--panel-line);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.lb-pkey li.on-frontier {
+  color: var(--fg);
+}
+
+.lb-pkey li.is-active {
+  background: var(--row-hover);
+}
+
+.lb-pkey-num {
+  min-width: 2ch;
+  text-align: right;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.lb-pkey-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.lb-pkey-val {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 .lb-leader {
   stroke: var(--ghost);
   stroke-width: 1;

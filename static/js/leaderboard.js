@@ -505,6 +505,27 @@ function lbParetoTip(data, p) {
     return '<span>' + lbEscape(data.xLabel) + '</span> ' + fx(p.x) + ' · <span>' + lbEscape(data.yLabel) + '</span> ' + lbPct(p.y);
 }
 
+// A log axis on the 1-2-5 sequence, padded around the data: {min, max, ticks, fmt, log}
+function lbLogAxis(kind, values) {
+    let lo = Math.min.apply(null, values), hi = Math.max.apply(null, values);
+    if (!(lo > 0)) lo = hi > 0 ? hi / 10 : 1;
+    if (hi <= lo) { lo /= 2; hi *= 2; }
+    const seq = [];
+    for (let e = Math.floor(Math.log10(lo)) - 1; e <= Math.ceil(Math.log10(hi)) + 1; e++) {
+        [1, 2, 5].forEach(function(mul) { seq.push(mul * Math.pow(10, e)); });
+    }
+    const min = seq.filter(function(v) { return v <= lo / 1.15; }).pop();
+    const max = seq.find(function(v) { return v >= hi * 1.15; });
+    return {
+        min: min, max: max, log: true,
+        ticks: seq.filter(function(v) { return v >= min && v <= max; }),
+        // Ticks are round numbers, so they print without decimals
+        fmt: kind === 'cost' ?
+            function(v) { return v >= 1 ? '$' + Math.round(v).toLocaleString('en-US') : '$' + String(+v.toFixed(2)); } :
+            lbFmtTokens,
+    };
+}
+
 function lbRenderPareto() {
     const box = document.getElementById('lb-pareto');
     const data = lbParetoPoints();
@@ -515,13 +536,18 @@ function lbRenderPareto() {
         return;
     }
     const W = Math.max(320, box.clientWidth - 32), H = Math.max(360, Math.min(560, Math.round(W * 0.52)));
-    const m = { top: 24, right: 150, bottom: 52, left: 64 };
-    if (W < 600) m.right = 40;
+    // Phones: points are numbered and named in a key under the chart
+    const compact = W < 600;
+    const m = { top: 24, right: compact ? 24 : 150, bottom: 52, left: compact ? 52 : 64 };
     const pw = W - m.left - m.right, ph = H - m.top - m.bottom;
-    const xAxis = lbAxis(data.xKind, data.points.map(function(p) { return p.x; }));
+    // Cost spans more than tenfold, so it gets a log axis; tokens stay linear from 0
+    const xValues = data.points.map(function(p) { return p.x; });
+    const xAxis = data.xKind === 'cost' ? lbLogAxis('cost', xValues) : lbAxis(data.xKind, xValues);
     // Scores always span the full 0 to 100 so plots compare at a glance
     const yAxis = { max: 100, ticks: [0, 20, 40, 60, 80, 100], fmt: function(v) { return v + '%'; } };
-    const sx = function(v) { return m.left + v / xAxis.max * pw; };
+    const sx = xAxis.log ?
+        function(v) { return m.left + (Math.log(v) - Math.log(xAxis.min)) / (Math.log(xAxis.max) - Math.log(xAxis.min)) * pw; } :
+        function(v) { return m.left + v / xAxis.max * pw; };
     const sy = function(v) { return m.top + ph - v / yAxis.max * ph; };
     const frontier = lbFrontier(data.points, data.minX);
     const onFrontier = {};
@@ -537,7 +563,7 @@ function lbRenderPareto() {
         svg += '<line class="lb-grid" x1="' + m.left + '" x2="' + (m.left + pw) + '" y1="' + sy(v) + '" y2="' + sy(v) + '"/>';
         svg += '<text class="lb-axis-text" x="' + (m.left - 8) + '" y="' + (sy(v) + 4) + '" text-anchor="end">' + lbEscape(yAxis.fmt(v)) + '</text>';
     });
-    svg += '<text class="lb-axis-title" x="' + (m.left + pw / 2) + '" y="' + (H - 10) + '" text-anchor="middle">' + lbEscape(data.xLabel) + '</text>';
+    svg += '<text class="lb-axis-title" x="' + (m.left + pw / 2) + '" y="' + (H - 10) + '" text-anchor="middle">' + lbEscape(data.xLabel) + (xAxis.log ? ' (log scale)' : '') + '</text>';
     svg += '<text class="lb-axis-title" transform="translate(14 ' + (m.top + ph / 2) + ') rotate(-90)" text-anchor="middle">' + lbEscape(data.yLabel) + '</text>';
     if (data.diagonal) {
         const d = Math.min(xAxis.max, yAxis.max);
@@ -580,9 +606,13 @@ function lbRenderPareto() {
     const order = data.points.slice().sort(function(a, b) {
         return (onFrontier[b.e.key] ? 1 : 0) - (onFrontier[a.e.key] ? 1 : 0) || nearest(a) - nearest(b);
     });
+    data.points.slice().sort(function(a, b) { return b.y - a.y || a.x - b.x; })
+        .forEach(function(p, i) { p.num = i + 1; });
+    // Label box: a name over its company, or on phones just the point's number
+    const up = compact ? 9 : 11, down = compact ? 3 : 14;
     const labels = order.map(function(p) {
         const px = sx(p.x), py = sy(p.y);
-        const width = Math.max(p.name.length * 7.3, p.sub.length * 6.1) + 4;
+        const width = compact ? String(p.num).length * 7 + 4 : Math.max(p.name.length * 7.3, p.sub.length * 6.1) + 4;
         let best = null;
         for (let r = 0; r < RINGS.length && !(best && best.cost === 0); r++) {
             for (let a = 0; a < ANGLES.length; a++) {
@@ -590,8 +620,8 @@ function lbRenderPareto() {
                 const ax = px + RINGS[r] * c, ay = py + RINGS[r] * sn;
                 const anchor = c > 0.3 ? 'start' : c < -0.3 ? 'end' : 'middle';
                 const x0 = anchor === 'start' ? ax : anchor === 'end' ? ax - width : ax - width / 2;
-                const y = sn > 0.3 ? ay + 11 : sn < -0.3 ? ay - 14 : ay - 1.5;
-                const box = { x0: x0, x1: x0 + width, y0: y - 11, y1: y + 14 };
+                const y = sn > 0.3 ? ay + up : sn < -0.3 ? ay - down : ay + (up - down) / 2;
+                const box = { x0: x0, x1: x0 + width, y0: y - up, y1: y + down };
                 const cost = overlap(box);
                 if (!best || cost < best.cost) best = { x: ax, y: y, anchor: anchor, box: box, cost: cost, ring: r };
                 if (cost === 0) break;
@@ -614,18 +644,29 @@ function lbRenderPareto() {
             '<rect class="lb-dot' + f + '" x="' + (sx(p.x) - 4) + '" y="' + (sy(p.y) - 4) + '" width="8" height="8"/>' +
             '</g>';
     });
-    if (W >= 600) {
-        labels.forEach(function(l) {
-            const f = onFrontier[l.p.e.key] ? ' on-frontier' : '';
-            if (l.leader) {
-                svg += '<line class="lb-leader" x1="' + l.leader.x1.toFixed(1) + '" y1="' + l.leader.y1.toFixed(1) +
-                    '" x2="' + l.leader.x2.toFixed(1) + '" y2="' + l.leader.y2.toFixed(1) + '"/>';
-            }
+    labels.forEach(function(l) {
+        const f = onFrontier[l.p.e.key] ? ' on-frontier' : '';
+        if (l.leader) {
+            svg += '<line class="lb-leader" x1="' + l.leader.x1.toFixed(1) + '" y1="' + l.leader.y1.toFixed(1) +
+                '" x2="' + l.leader.x2.toFixed(1) + '" y2="' + l.leader.y2.toFixed(1) + '"/>';
+        }
+        if (compact) {
+            svg += '<text class="lb-label lb-label-num' + f + '" x="' + l.x.toFixed(1) + '" y="' + l.y.toFixed(1) + '" text-anchor="' + l.anchor + '">' + l.p.num + '</text>';
+        } else {
             svg += '<text class="lb-label' + f + '" x="' + l.x.toFixed(1) + '" y="' + l.y.toFixed(1) + '" text-anchor="' + l.anchor + '">' + lbEscape(l.p.name) + '</text>' +
                 '<text class="lb-label-sub" x="' + l.x.toFixed(1) + '" y="' + (l.y + 12).toFixed(1) + '" text-anchor="' + l.anchor + '">' + lbEscape(l.p.sub) + '</text>';
-        });
-    }
+        }
+    });
     svg += '</svg>';
+    if (compact) {
+        const fx = data.xKind === 'cost' ? lbFmtCost : lbFmtTokens;
+        svg += '<ol class="lb-pkey">' + data.points.slice().sort(function(a, b) { return a.num - b.num; }).map(function(p) {
+            return '<li data-key="' + lbEscape(p.e.key) + '"' + (onFrontier[p.e.key] ? ' class="on-frontier"' : '') + '>' +
+                '<span class="lb-pkey-num">' + p.num + '</span>' +
+                '<span class="lb-pkey-name">' + lbEscape(p.name) + '</span>' +
+                '<span class="lb-pkey-val">' + fx(p.x) + ' · ' + lbPct(p.y) + '</span></li>';
+        }).join('') + '</ol>';
+    }
     box.innerHTML = svg;
 
     box.querySelectorAll('.lb-point').forEach(function(g) {
@@ -636,6 +677,18 @@ function lbRenderPareto() {
         });
         g.addEventListener('mousemove', lbTipMove);
         g.addEventListener('mouseleave', lbTipHide);
+    });
+    // Phones: tapping a row of the key marks its point
+    box.querySelectorAll('.lb-pkey li').forEach(function(li) {
+        li.addEventListener('click', function() {
+            const on = !li.classList.contains('is-active');
+            box.querySelectorAll('.lb-pkey li, .lb-point').forEach(function(el) { el.classList.remove('is-active'); });
+            if (on) {
+                li.classList.add('is-active');
+                const g = box.querySelector('.lb-point[data-key="' + CSS.escape(li.dataset.key) + '"]');
+                if (g) g.classList.add('is-active');
+            }
+        });
     });
 }
 
