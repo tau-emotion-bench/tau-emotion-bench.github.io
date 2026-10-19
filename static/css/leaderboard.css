@@ -815,6 +815,11 @@ button.lb-action {
   fill: var(--accent);
 }
 
+.lb-leader {
+  stroke: var(--ghost);
+  stroke-width: 1;
+}
+
 .lb-label {
   fill: var(--muted);
   font-size: 12px;

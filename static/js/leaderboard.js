@@ -546,36 +546,66 @@ function lbRenderPareto() {
     if (frontier.length > 1) {
         svg += '<polyline class="lb-frontier" points="' + frontier.map(function(p) { return sx(p.x) + ',' + sy(p.y); }).join(' ') + '"/>';
     }
-    // Labels: try right, left, below and above of the mark; the first spot that hits no other label or mark wins
-    const boxes = data.points.map(function(p) { return { x0: sx(p.x) - 6, x1: sx(p.x) + 6, y0: sy(p.y) - 6, y1: sy(p.y) + 6 }; });
-    const collides = function(b) {
-        return boxes.some(function(o) { return b.x0 < o.x1 && o.x0 < b.x1 && b.y0 < o.y1 && o.y0 < b.y1; }) ||
-            b.x0 < m.left - 8 || b.x1 > W - 2 || b.y0 < 2 || b.y1 > m.top + ph + 4;
+    // Labels: every point gets one. Spots are tried on rings of growing distance around
+    // the mark; a spot is scored by how much it overlaps other labels, marks and the
+    // frontier line, and the first free spot wins (else the least overlapping one).
+    // A label set away from its mark gets a thin leader line back to it.
+    const boxes = data.points.map(function(p) { return { x0: sx(p.x) - 7, x1: sx(p.x) + 7, y0: sy(p.y) - 7, y1: sy(p.y) + 7 }; });
+    for (let i = 1; i < frontier.length; i++) {
+        const ax = sx(frontier[i - 1].x), ay = sy(frontier[i - 1].y), bx = sx(frontier[i].x), by = sy(frontier[i].y);
+        const steps = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) / 4));
+        for (let k = 0; k <= steps; k++) {
+            const x = ax + (bx - ax) * k / steps, y = ay + (by - ay) * k / steps;
+            boxes.push({ x0: x - 2, x1: x + 2, y0: y - 2, y1: y + 2 });
+        }
+    }
+    const overlap = function(b) {
+        let area = 0;
+        boxes.forEach(function(o) {
+            const w = Math.min(b.x1, o.x1) - Math.max(b.x0, o.x0), h = Math.min(b.y1, o.y1) - Math.max(b.y0, o.y0);
+            if (w > 0 && h > 0) area += w * h;
+        });
+        const out = Math.max(0, m.left + 4 - b.x0) + Math.max(0, b.x1 - (W - 4)) +
+            Math.max(0, 2 - b.y0) + Math.max(0, b.y1 - (m.top + ph - 2));
+        return area + out * 1000;
     };
-    const labels = data.points.slice().sort(function(a, b) { return b.x - a.x; }).map(function(p) {
+    const RINGS = [10, 22, 36, 52, 70, 92, 118, 148];
+    const ANGLES = [0, 180, 30, 150, -30, -150, 60, 120, -60, -120, 90, -90];
+    // Frontier points first, then the most crowded points, so they get the nearest spots
+    const nearest = function(p) {
+        let d = Infinity;
+        data.points.forEach(function(q) { if (q !== p) d = Math.min(d, Math.hypot(sx(q.x) - sx(p.x), sy(q.y) - sy(p.y))); });
+        return d;
+    };
+    const order = data.points.slice().sort(function(a, b) {
+        return (onFrontier[b.e.key] ? 1 : 0) - (onFrontier[a.e.key] ? 1 : 0) || nearest(a) - nearest(b);
+    });
+    const labels = order.map(function(p) {
         const px = sx(p.x), py = sy(p.y);
         const width = Math.max(p.name.length * 7.3, p.sub.length * 6.1) + 4;
-        const spots = [
-            { dx: 10, dy: 4, anchor: 'start' }, { dx: -10, dy: 4, anchor: 'end' },
-            { dx: 10, dy: 20, anchor: 'start' }, { dx: -10, dy: 20, anchor: 'end' },
-            { dx: 10, dy: -14, anchor: 'start' }, { dx: -10, dy: -14, anchor: 'end' },
-            { dx: 0, dy: 20, anchor: 'middle' }, { dx: 0, dy: -16, anchor: 'middle' },
-            { dx: 10, dy: 36, anchor: 'start' }, { dx: -10, dy: 36, anchor: 'end' },
-        ];
-        let pick = null;
-        for (let i = 0; i < spots.length && !pick; i++) {
-            const sp = spots[i];
-            const x = px + sp.dx, y = py + sp.dy;
-            const x0 = sp.anchor === 'start' ? x : sp.anchor === 'end' ? x - width : x - width / 2;
-            const box = { x0: x0, x1: x0 + width, y0: y - 11, y1: y + 14 };
-            if (!collides(box)) pick = { x: x, y: y, anchor: sp.anchor, box: box };
+        let best = null;
+        for (let r = 0; r < RINGS.length && !(best && best.cost === 0); r++) {
+            for (let a = 0; a < ANGLES.length; a++) {
+                const t = ANGLES[a] * Math.PI / 180, c = Math.cos(t), sn = -Math.sin(t);
+                const ax = px + RINGS[r] * c, ay = py + RINGS[r] * sn;
+                const anchor = c > 0.3 ? 'start' : c < -0.3 ? 'end' : 'middle';
+                const x0 = anchor === 'start' ? ax : anchor === 'end' ? ax - width : ax - width / 2;
+                const y = sn > 0.3 ? ay + 11 : sn < -0.3 ? ay - 14 : ay - 1.5;
+                const box = { x0: x0, x1: x0 + width, y0: y - 11, y1: y + 14 };
+                const cost = overlap(box);
+                if (!best || cost < best.cost) best = { x: ax, y: y, anchor: anchor, box: box, cost: cost, ring: r };
+                if (cost === 0) break;
+            }
         }
-        if (!pick) {
-            const x = px + 10, y = py + 4;
-            pick = { x: x, y: y, anchor: 'start', box: { x0: x, x1: x + width, y0: y - 11, y1: y + 14 }, crowded: true };
+        boxes.push(best.box);
+        // Leader from the mark's edge to the nearest point of the label's box
+        let leader = null;
+        if (best.ring > 0) {
+            const tx = Math.max(best.box.x0, Math.min(px, best.box.x1)), ty = Math.max(best.box.y0, Math.min(py, best.box.y1));
+            const d = Math.hypot(tx - px, ty - py);
+            if (d > 14) leader = { x1: px + (tx - px) * 6 / d, y1: py + (ty - py) * 6 / d, x2: tx, y2: ty };
         }
-        boxes.push(pick.box);
-        return { p: p, x: pick.x, y: pick.y, anchor: pick.anchor, crowded: pick.crowded };
+        return { p: p, x: best.x, y: best.y, anchor: best.anchor, leader: leader };
     });
     data.points.forEach(function(p) {
         const f = onFrontier[p.e.key] ? ' on-frontier' : '';
@@ -587,7 +617,10 @@ function lbRenderPareto() {
     if (W >= 600) {
         labels.forEach(function(l) {
             const f = onFrontier[l.p.e.key] ? ' on-frontier' : '';
-            if (l.crowded) return;  // its tooltip still names it
+            if (l.leader) {
+                svg += '<line class="lb-leader" x1="' + l.leader.x1.toFixed(1) + '" y1="' + l.leader.y1.toFixed(1) +
+                    '" x2="' + l.leader.x2.toFixed(1) + '" y2="' + l.leader.y2.toFixed(1) + '"/>';
+            }
             svg += '<text class="lb-label' + f + '" x="' + l.x.toFixed(1) + '" y="' + l.y.toFixed(1) + '" text-anchor="' + l.anchor + '">' + lbEscape(l.p.name) + '</text>' +
                 '<text class="lb-label-sub" x="' + l.x.toFixed(1) + '" y="' + (l.y + 12).toFixed(1) + '" text-anchor="' + l.anchor + '">' + lbEscape(l.p.sub) + '</text>';
         });
