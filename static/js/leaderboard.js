@@ -439,8 +439,8 @@ function lbParamsB(model) {
     return m ? Number(m[1]) : null;
 }
 
-// The Pareto plots leave out models under 8B
-const LB_PARETO_MIN_B = 8;
+// The Pareto plots leave out models under 32B
+const LB_PARETO_MIN_B = 32;
 
 function lbParetoPoints() {
     const cost = state.pair.indexOf('cost') === 0;
