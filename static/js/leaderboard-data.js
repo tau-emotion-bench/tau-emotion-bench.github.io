@@ -28,7 +28,7 @@ const LEADERBOARD = {
   domains: ["Airline", "Retail", "Telecom", "Telehealth", "School", "Basketball", "Restaurant", "Travel", "Movie", "Bank"],
   userAgents: [
     {
-      // Paper Figure 1 (Avg@3) and Table 3 (Pass^3)
+      // Computed from the released trajectories (trajectories-release): per-domain scores, averaged over the ten domains
       id: "qwen",
       name: "Qwen3-235B-A22B-Instruct-2507",
       short: "Qwen3-235B-A22B-Instruct",  // shown in the table; `name` is shown on the switch
@@ -37,7 +37,7 @@ const LEADERBOARD = {
           domains: [32.9, 44.3, 17.1, 31.4, 42.0, 38.0, 26.0, 30.0, 22.0, 38.0] },
         { model: "GLM-5.3",                        provider: "Z.ai",        thinking: true,  pass1: 51.9, pass3: 31.7,
           domains: [38.6, 45.7, 2.9, 20.0, 48.0, 62.0, 28.0, 14.0, 30.0, 28.0] },
-        { model: "Qwen3.8-27B",                    provider: "Qwen",        thinking: true,  pass1: 49.9, pass3: 27.3,
+        { model: "Qwen3.8-27B",                    provider: "Qwen",        thinking: true,  pass1: 50.0, pass3: 27.3,
           domains: [32.9, 38.6, 11.4, 30.0, 48.0, 28.0, 30.0, 16.0, 10.0, 28.0] },
         { model: "Kimi-K2.7-Code",                 provider: "Moonshot AI", thinking: true,  pass1: 49.3, pass3: 26.1,
           domains: [30.0, 44.3, 10.0, 14.3, 44.0, 34.0, 12.0, 12.0, 8.0, 52.0] },
@@ -102,13 +102,13 @@ const LEADERBOARD = {
       ]
     },
     {
-      // Paper Figure 1 (Avg@3) and Table 13 (Pass^1 and Pass^3 per domain)
+      // Computed from the released trajectories (trajectories-release): per-domain scores, averaged over the ten domains
       id: "glm",
       name: "GLM-5.2",
       entries: [
         { model: "GLM-5.3",                        provider: "Z.ai",        thinking: true,  pass1: 78.6, pass3: 66.5,
           domains: [80.0, 94.3, 40.0, 64.3, 52.0, 80.0, 70.0, 76.0, 58.0, 50.0] },
-        { model: "DeepSeek-V4.1-Flash",            provider: "DeepSeek",    thinking: false, pass1: 77.5, pass3: 64.6,
+        { model: "DeepSeek-V4.1-Flash",            provider: "DeepSeek",    thinking: false, pass1: 77.5, pass3: 64.5,
           domains: [78.6, 92.9, 50.0, 60.0, 54.0, 54.0, 66.0, 86.0, 36.0, 68.0] },
         { model: "Kimi-K2.7-Code",                 provider: "Moonshot AI", thinking: true,  pass1: 74.1, pass3: 59.1,
           domains: [54.3, 82.9, 37.1, 64.3, 74.0, 66.0, 42.0, 56.0, 28.0, 86.0] },
