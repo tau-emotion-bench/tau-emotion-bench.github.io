@@ -5,7 +5,7 @@
 //   provider = company that released the model (shown in the Company column)
 //   domains  = Pass^3 per domain, in the order of `domains`, in percent
 const LEADERBOARD = {
-  updated: "2026-10-12",
+  updated: "2026-10-19",
   // List prices in US dollars per million tokens, used with the agent's token counts for the cost
   // estimate (the runs were self-hosted, so what they cost is not recorded). Provider list prices
   // as reported by pricing trackers in October 2026; a thinking and a non-thinking run of the same
@@ -56,7 +56,49 @@ const LEADERBOARD = {
         { model: "Qwen3-32B",                      provider: "Qwen",        thinking: true,  pass1: 28.5, pass3:  8.6,
           domains: [8.6, 21.4, 8.6, 15.7, 14.0, 12.0, 2.0, 2.0, 2.0, 0.0] },
         { model: "Qwen3-32B",                      provider: "Qwen",        thinking: false, pass1: 23.9, pass3:  9.4,
-          domains: [10.0, 21.4, 12.9, 10.0, 20.0, 4.0, 6.0, 0.0, 0.0, 10.0] }
+          domains: [10.0, 21.4, 12.9, 10.0, 20.0, 4.0, 6.0, 0.0, 0.0, 10.0] },
+        { model: "Qwen3-1.7B",                     provider: "Qwen",            thinking: true,  pass1:  6.0, pass3:  1.1,
+          domains: [0.0, 0.0, 8.6, 2.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] },
+        { model: "Qwen3-4B",                       provider: "Qwen",            thinking: true,  pass1: 18.0, pass3:  3.9,
+          domains: [2.9, 1.4, 8.6, 14.3, 0.0, 8.0, 0.0, 0.0, 0.0, 4.0] },
+        { model: "Qwen3-8B",                       provider: "Qwen",            thinking: true,  pass1: 24.3, pass3:  8.4,
+          domains: [4.3, 14.3, 12.9, 22.9, 0.0, 12.0, 4.0, 2.0, 0.0, 12.0] },
+        { model: "Tracer-Low-1.7B",                provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 19.9, pass3:  7.2,
+          domains: [10.0, 18.6, 10.0, 17.1, 8.0, 0.0, 2.0, 0.0, 0.0, 6.0] },
+        { model: "Tracer-Low-4B",                  provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 29.9, pass3: 13.0,
+          domains: [24.3, 21.4, 15.7, 22.9, 6.0, 18.0, 8.0, 0.0, 0.0, 14.0] },
+        { model: "Tracer-Low-8B",                  provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 32.3, pass3: 15.1,
+          domains: [30.0, 22.9, 20.0, 28.6, 8.0, 14.0, 6.0, 4.0, 0.0, 18.0] },
+        { model: "Tracer-High-1.7B",               provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 25.6, pass3: 10.4,
+          domains: [17.1, 17.1, 11.4, 14.3, 8.0, 12.0, 0.0, 0.0, 0.0, 24.0] },
+        { model: "Tracer-High-4B",                 provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 37.7, pass3: 17.2,
+          domains: [22.9, 30.0, 8.6, 22.9, 34.0, 20.0, 6.0, 0.0, 2.0, 26.0] },
+        { model: "Tracer-High-8B",                 provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 38.1, pass3: 19.8,
+          domains: [27.1, 31.4, 15.7, 31.4, 38.0, 16.0, 12.0, 2.0, 2.0, 22.0] },
+        { model: "AReaL-1.7B",                     provider: "inclusionAI",     thinking: true,  custom: true, pass1:  4.8, pass3:  0.8,
+          domains: [1.4, 1.4, 2.9, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, 0.0] },
+        { model: "AReaL-4B",                       provider: "inclusionAI",     thinking: true,  custom: true, pass1: 12.3, pass3:  3.0,
+          domains: [2.9, 5.7, 10.0, 1.4, 2.0, 2.0, 2.0, 0.0, 0.0, 4.0] },
+        { model: "AReaL-8B",                       provider: "inclusionAI",     thinking: true,  custom: true, pass1: 13.3, pass3:  3.2,
+          domains: [5.7, 8.6, 10.0, 1.4, 2.0, 2.0, 0.0, 0.0, 0.0, 2.0] },
+        { model: "EnvScaler-1.7B",                 provider: "XXHStudyHard",    thinking: true,  pass1: 12.9, pass3:  3.1,
+          domains: [1.4, 0.0, 14.3, 11.4, 0.0, 0.0, 0.0, 0.0, 0.0, 4.0] },
+        { model: "EnvScaler-4B",                   provider: "XXHStudyHard",    thinking: true,  pass1: 26.1, pass3:  9.6,
+          domains: [12.9, 17.1, 22.9, 22.9, 6.0, 6.0, 0.0, 0.0, 0.0, 8.0] },
+        { model: "EnvScaler-8B",                   provider: "XXHStudyHard",    thinking: true,  pass1: 28.4, pass3: 11.8,
+          domains: [20.0, 12.9, 17.1, 25.7, 14.0, 12.0, 4.0, 2.0, 0.0, 10.0] },
+        { model: "Arctic-AWM-4B",                  provider: "Snowflake",       thinking: true,  pass1: 18.7, pass3:  5.1,
+          domains: [0.0, 10.0, 11.4, 20.0, 4.0, 2.0, 0.0, 0.0, 0.0, 4.0] },
+        { model: "Arctic-AWM-8B",                  provider: "Snowflake",       thinking: true,  pass1: 21.8, pass3:  6.3,
+          domains: [5.7, 11.4, 11.4, 20.0, 4.0, 4.0, 2.0, 0.0, 0.0, 4.0] },
+        { model: "SPADE-4B",                       provider: "spade-rl",        thinking: false, pass1:  3.3, pass3:  0.6,
+          domains: [1.4, 2.9, 1.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] },
+        { model: "SPADE-8B",                       provider: "spade-rl",        thinking: true,  pass1:  3.5, pass3:  0.7,
+          domains: [0.0, 0.0, 5.7, 1.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] },
+        { model: "Simia-Tau-SFT-8B",               provider: "Simia-Agent",     thinking: false, custom: true, pass1: 21.5, pass3:  6.9,
+          domains: [8.6, 14.3, 11.4, 8.6, 6.0, 6.0, 0.0, 0.0, 0.0, 14.0] },
+        { model: "Simia-Tau-SFT-RL-8B",            provider: "Simia-Agent",     thinking: false, custom: true, pass1: 21.8, pass3:  7.2,
+          domains: [12.9, 14.3, 11.4, 17.1, 2.0, 2.0, 2.0, 0.0, 0.0, 10.0] }
       ]
     },
     {
@@ -87,7 +129,25 @@ const LEADERBOARD = {
         { model: "Qwen3-32B",                      provider: "Qwen",        thinking: true,  pass1: 42.9, pass3: 24.3,
           domains: [28.6, 52.9, 42.9, 42.9, 30.0, 20.0, 8.0, 4.0, 2.0, 12.0] },
         { model: "Qwen3-32B",                      provider: "Qwen",        thinking: false, pass1: 37.9, pass3: 23.9,
-          domains: [20.0, 50.0, 54.3, 48.6, 34.0, 10.0, 8.0, 0.0, 0.0, 14.0] }
+          domains: [20.0, 50.0, 54.3, 48.6, 34.0, 10.0, 8.0, 0.0, 0.0, 14.0] },
+        { model: "Qwen3-1.7B",                     provider: "Qwen",            thinking: true,  pass1: 11.1, pass3:  4.0,
+          domains: [2.9, 0.0, 15.7, 15.7, 0.0, 2.0, 0.0, 0.0, 0.0, 4.0] },
+        { model: "Qwen3-4B",                       provider: "Qwen",            thinking: true,  pass1: 31.2, pass3: 16.2,
+          domains: [20.0, 27.1, 48.6, 44.3, 2.0, 6.0, 6.0, 2.0, 0.0, 6.0] },
+        { model: "Qwen3-8B",                       provider: "Qwen",            thinking: true,  pass1: 37.6, pass3: 22.0,
+          domains: [18.6, 42.9, 61.4, 42.9, 14.0, 6.0, 10.0, 2.0, 2.0, 20.0] },
+        { model: "Tracer-Low-1.7B",                provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 31.6, pass3: 20.8,
+          domains: [32.9, 41.4, 51.4, 60.0, 4.0, 4.0, 2.0, 0.0, 0.0, 12.0] },
+        { model: "Tracer-Low-4B",                  provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 43.1, pass3: 26.8,
+          domains: [47.1, 67.1, 51.4, 60.0, 6.0, 18.0, 6.0, 0.0, 2.0, 10.0] },
+        { model: "Tracer-Low-8B",                  provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 46.7, pass3: 31.3,
+          domains: [48.6, 67.1, 57.1, 65.7, 20.0, 4.0, 22.0, 0.0, 4.0, 24.0] },
+        { model: "Tracer-High-1.7B",               provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 36.3, pass3: 19.4,
+          domains: [30.0, 40.0, 34.3, 41.4, 16.0, 12.0, 0.0, 0.0, 0.0, 20.0] },
+        { model: "Tracer-High-4B",                 provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 51.4, pass3: 34.2,
+          domains: [41.4, 67.1, 52.9, 62.9, 40.0, 24.0, 20.0, 2.0, 6.0, 26.0] },
+        { model: "Tracer-High-8B",                 provider: "τ-Emotion-Bench", thinking: true,  custom: true, pass1: 54.7, pass3: 37.5,
+          domains: [44.3, 64.3, 57.1, 71.4, 44.0, 28.0, 18.0, 4.0, 8.0, 36.0] }
       ]
     }
   ]
