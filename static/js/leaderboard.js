@@ -294,8 +294,7 @@ function lbEscape(text) {
 }
 
 function lbTags(e) {
-    return (e.thinking ? '<span class="lb-tag">thinking</span>' : '') +
-        (e.custom ? '<span class="lb-tag">custom</span>' : '');
+    return e.thinking ? '<span class="lb-tag">thinking</span>' : '';
 }
 
 // ---- URL hash ----
@@ -453,7 +452,13 @@ function lbParetoPoints() {
         if (size != null && size <= LB_PARETO_MIN_B) return;
         const x = cost ? lbCost(e) : (lbTokens(e) ? lbTokens(e).total : null);
         const y = score(e);
-        if (x != null && y != null) points.push({ e: e, x: x, y: y, sub: e.provider });
+        if (x != null && y != null) points.push({ e: e, x: x, y: y, sub: e.provider, name: e.model });
+    });
+    // Runs of one model with thinking on and off share a name; tell them apart
+    const seen = {};
+    points.forEach(function(p) { seen[p.e.model] = (seen[p.e.model] || 0) + 1; });
+    points.forEach(function(p) {
+        if (seen[p.e.model] > 1) p.name = p.e.model + (p.e.thinking ? ' (thinking)' : ' (non-thinking)');
     });
     return {
         xLabel: (cost ? 'Estimated cost' : 'Agent tokens') + where,
@@ -549,7 +554,7 @@ function lbRenderPareto() {
     };
     const labels = data.points.slice().sort(function(a, b) { return b.x - a.x; }).map(function(p) {
         const px = sx(p.x), py = sy(p.y);
-        const width = Math.max(p.e.model.length * 7.3, p.sub.length * 6.1) + 4;
+        const width = Math.max(p.name.length * 7.3, p.sub.length * 6.1) + 4;
         const spots = [
             { dx: 10, dy: 4, anchor: 'start' }, { dx: -10, dy: 4, anchor: 'end' },
             { dx: 10, dy: 20, anchor: 'start' }, { dx: -10, dy: 20, anchor: 'end' },
@@ -583,7 +588,7 @@ function lbRenderPareto() {
         labels.forEach(function(l) {
             const f = onFrontier[l.p.e.key] ? ' on-frontier' : '';
             if (l.crowded) return;  // its tooltip still names it
-            svg += '<text class="lb-label' + f + '" x="' + l.x.toFixed(1) + '" y="' + l.y.toFixed(1) + '" text-anchor="' + l.anchor + '">' + lbEscape(l.p.e.model) + '</text>' +
+            svg += '<text class="lb-label' + f + '" x="' + l.x.toFixed(1) + '" y="' + l.y.toFixed(1) + '" text-anchor="' + l.anchor + '">' + lbEscape(l.p.name) + '</text>' +
                 '<text class="lb-label-sub" x="' + l.x.toFixed(1) + '" y="' + (l.y + 12).toFixed(1) + '" text-anchor="' + l.anchor + '">' + lbEscape(l.p.sub) + '</text>';
         });
     }
@@ -593,7 +598,7 @@ function lbRenderPareto() {
     box.querySelectorAll('.lb-point').forEach(function(g) {
         const p = data.points.find(function(x) { return x.e.key === g.dataset.key; });
         g.addEventListener('mouseenter', function(event) {
-            lbTipShow('<b>' + lbEscape(p.e.model) + '</b> <span>' + lbEscape(p.sub) + '</span><br>' + lbParetoTip(data, p) +
+            lbTipShow('<b>' + lbEscape(p.name) + '</b> <span>' + lbEscape(p.sub) + '</span><br>' + lbParetoTip(data, p) +
                 (onFrontier[p.e.key] ? '<br><span>on the frontier</span>' : ''), event);
         });
         g.addEventListener('mousemove', lbTipMove);
