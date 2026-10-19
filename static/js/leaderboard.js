@@ -439,8 +439,8 @@ function lbParamsB(model) {
     return m ? Number(m[1]) : null;
 }
 
-// The Pareto plots leave out models under 32B
-const LB_PARETO_MIN_B = 32;
+// The Pareto plots show only models larger than 16B
+const LB_PARETO_MIN_B = 16;
 
 function lbParetoPoints() {
     const cost = state.pair.indexOf('cost') === 0;
@@ -450,7 +450,7 @@ function lbParetoPoints() {
     const points = [];
     lbFiltered().forEach(function(e) {
         const size = lbParamsB(e.model);
-        if (size != null && size < LB_PARETO_MIN_B) return;
+        if (size != null && size <= LB_PARETO_MIN_B) return;
         const x = cost ? lbCost(e) : (lbTokens(e) ? lbTokens(e).total : null);
         const y = score(e);
         if (x != null && y != null) points.push({ e: e, x: x, y: y, sub: e.provider });
