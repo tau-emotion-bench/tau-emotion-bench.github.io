@@ -432,6 +432,16 @@ function lbRenderRanking() {
 
 // ---- Pareto ----
 
+// Parameters in billions from the model name (Qwen3-4B, Tracer-High-1.7B, Qwen3-235B-A22B);
+// null when the name gives none, as for the large API models
+function lbParamsB(model) {
+    const m = /(\d+(?:\.\d+)?)B(?![a-z])/i.exec(model);
+    return m ? Number(m[1]) : null;
+}
+
+// The Pareto plots leave out models under 8B
+const LB_PARETO_MIN_B = 8;
+
 function lbParetoPoints() {
     const cost = state.pair.indexOf('cost') === 0;
     const p3 = state.pair.indexOf('-p3') > 0;
@@ -439,6 +449,8 @@ function lbParetoPoints() {
     const score = p3 ? lbP3 : lbP1;
     const points = [];
     lbFiltered().forEach(function(e) {
+        const size = lbParamsB(e.model);
+        if (size != null && size < LB_PARETO_MIN_B) return;
         const x = cost ? lbCost(e) : (lbTokens(e) ? lbTokens(e).total : null);
         const y = score(e);
         if (x != null && y != null) points.push({ e: e, x: x, y: y, sub: e.provider });
