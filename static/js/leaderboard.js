@@ -502,7 +502,8 @@ function lbRenderPareto() {
     if (W < 600) m.right = 40;
     const pw = W - m.left - m.right, ph = H - m.top - m.bottom;
     const xAxis = lbAxis(data.xKind, data.points.map(function(p) { return p.x; }));
-    const yAxis = lbAxis('pct', data.points.map(function(p) { return p.y; }));
+    // Scores always span the full 0 to 100 so plots compare at a glance
+    const yAxis = { max: 100, ticks: [0, 20, 40, 60, 80, 100], fmt: function(v) { return v + '%'; } };
     const sx = function(v) { return m.left + v / xAxis.max * pw; };
     const sy = function(v) { return m.top + ph - v / yAxis.max * ph; };
     const frontier = lbFrontier(data.points, data.minX);
