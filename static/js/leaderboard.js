@@ -461,7 +461,7 @@ function lbParetoPoints() {
         if (seen[p.e.model] > 1) p.name = p.e.model + (p.e.thinking ? ' (thinking)' : ' (non-thinking)');
     });
     return {
-        xLabel: (cost ? 'Estimated cost' : 'Agent tokens') + where,
+        xLabel: (cost ? 'Cost estimation' : '# tokens') + where,
         yLabel: (p3 ? 'Pass^3' : 'Pass^1') + where,
         xKind: cost ? 'cost' : 'tokens',
         minX: true,
@@ -563,7 +563,7 @@ function lbRenderPareto() {
         svg += '<line class="lb-grid" x1="' + m.left + '" x2="' + (m.left + pw) + '" y1="' + sy(v) + '" y2="' + sy(v) + '"/>';
         svg += '<text class="lb-axis-text" x="' + (m.left - 8) + '" y="' + (sy(v) + 4) + '" text-anchor="end">' + lbEscape(yAxis.fmt(v)) + '</text>';
     });
-    svg += '<text class="lb-axis-title" x="' + (m.left + pw / 2) + '" y="' + (H - 10) + '" text-anchor="middle">' + lbEscape(data.xLabel) + (xAxis.log ? ' (log scale)' : '') + '</text>';
+    svg += '<text class="lb-axis-title" x="' + (m.left + pw / 2) + '" y="' + (H - 10) + '" text-anchor="middle">' + lbEscape(data.xLabel) + '</text>';
     svg += '<text class="lb-axis-title" transform="translate(14 ' + (m.top + ph / 2) + ') rotate(-90)" text-anchor="middle">' + lbEscape(data.yLabel) + '</text>';
     if (data.diagonal) {
         const d = Math.min(xAxis.max, yAxis.max);
